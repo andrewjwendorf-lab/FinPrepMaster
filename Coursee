@@ -1,0 +1,593 @@
+import React, { useState, useEffect, useMemo } from 'react';
+import { 
+  BookOpen, 
+  CheckCircle, 
+  ChevronRight, 
+  BarChart3, 
+  Trophy, 
+  Clock, 
+  ArrowLeft,
+  ShieldCheck,
+  AlertCircle,
+  Menu,
+  Target,
+  TrendingUp,
+  Briefcase,
+  Layers,
+  LogOut,
+  FileText,
+  CheckCircle2,
+  RefreshCcw
+} from 'lucide-react';
+
+// --- FINRA WEIGHTING CONFIG ---
+const SECTIONS = {
+  KCM: { name: "Knowledge of Capital Markets", weight: 0.16, color: "bg-blue-600" },
+  PUR: { name: "Understanding Products and Their Risks", weight: 0.44, color: "bg-indigo-600" },
+  TCA: { name: "Trading, Customer Accounts & Prohibited Activities", weight: 0.31, color: "bg-violet-600" },
+  ORF: { name: "Overview of Regulatory Framework", weight: 0.09, color: "bg-emerald-600" }
+};
+
+const PASSING_SCORE = 70;
+
+// --- COURSE DATA (CONTENT PRESERVED) ---
+const SIE_CURRICULUM = [
+  {
+    day: 1,
+    title: "Market Participants & The Hierarchy",
+    domain: "KCM",
+    content: [
+      { subtitle: "The Primary Goal", text: "The securities industry facilitates the flow of capital from those who have it (investors) to those who need it (issuers) to grow the economy." },
+      { subtitle: "Issuers", text: "Issuers are legal entities (Corporations, Municipalities, Federal Government) that raise money by selling securities. Equity issuers sell stock; Debt issuers sell bonds." },
+      { subtitle: "The Types of Investors", text: "1. Retail: Individuals trading for personal accounts. 2. Institutional: Banks, insurance companies, pension funds. 3. Accredited: Net worth >$1M (minus home) or $200k+ annual income ($300k joint). 4. QIBs: Institutions managing at least $100M in securities." },
+      { subtitle: "The Intermediaries", text: "Broker-Dealers (BDs) facilitate trades. If they act as a Broker (Agent), they find a buyer for a seller and charge a Commission. If they act as a Dealer (Principal), they trade from their own inventory and charge a Markup/Markdown." }
+    ],
+    questions: [
+      { id: "d1q1", text: "Which of the following describes an 'Agency' transaction?", options: ["The firm trades from its own inventory", "The firm acts as a middleman and charges a commission", "The firm buys securities to hold long-term", "The firm guarantees the price of the stock"], correct: 1, rationale: "Agency = Broker = Commission (ABC)." },
+      { id: "d1q2", text: "An individual with $1.5M net worth, excluding their primary residence, is categorized as:", options: ["A Retail Investor", "A Qualified Institutional Buyer", "An Accredited Investor", "An Institutional Investor"], correct: 2, rationale: "Accredited investors meet specific net worth or income thresholds." },
+      { id: "d1q3", text: "When a Broker-Dealer acts as a principal in a trade, they are acting as a:", options: ["Agent", "Broker", "Dealer", "Advisor"], correct: 2, rationale: "Principals act as Dealers and charge markups/markdowns." },
+      { id: "d1q4", text: "A legal entity that offers securities to the public to raise capital is known as a(n):", options: ["Underwriter", "Issuer", "Transfer Agent", "Custodian"], correct: 1, rationale: "Issuers create and sell securities." },
+      { id: "d1q5", text: "Which of the following is NOT an Institutional Investor?", options: ["Mutual Fund", "Pension Fund", "A retail investor with $50k", "Insurance Company"], correct: 2, rationale: "Retail investors are individuals, regardless of account size, unless they meet high-net-worth accreditation/QIB standards." }
+    ]
+  },
+  {
+    day: 2,
+    title: "Regulatory Bodies & SROs",
+    domain: "ORF",
+    content: [
+      { subtitle: "The SEC", text: "The Securities and Exchange Commission (SEC) is the ultimate federal regulator. It was created by the Exchange Act of 1934. It has civil authority, not criminal." },
+      { subtitle: "SROs (Self-Regulatory Organizations)", text: "FINRA: Regulates broker-dealers and registered reps. MSRB: Regulates municipal securities (but cannot enforce rules; FINRA/SEC enforce them). CBOE: Regulates options trading." },
+      { subtitle: "Banking Regulators", text: "The Federal Reserve (The Fed) controls monetary policy. The FDIC protects bank deposits up to $250k. SIPC protects brokerage accounts up to $500k ($250k cash limit)." }
+    ],
+    questions: [
+      { id: "d2q1", text: "Which organization was created to protect customer accounts in the event of a BD bankruptcy?", options: ["FDIC", "FINRA", "SIPC", "SEC"], correct: 2, rationale: "SIPC protects brokerage accounts; FDIC protects bank accounts." },
+      { id: "d2q2", text: "Which SRO regulates the municipal securities market?", options: ["FINRA", "MSRB", "SEC", "The Fed"], correct: 1, rationale: "MSRB writes the rules for muni bonds." },
+      { id: "d2q3", text: "The Federal Reserve is primarily responsible for:", options: ["Enforcing insider trading laws", "Setting fiscal policy", "Controlling monetary policy", "Insuring bank deposits"], correct: 2, rationale: "The Fed controls money supply and interest rates." },
+      { id: "d2q4", text: "FINRA is responsible for overseeing which of the following?", options: ["Banks", "Broker-Dealers", "Insurance Companies", "The US Treasury"], correct: 1, rationale: "FINRA is the primary SRO for broker-dealers." },
+      { id: "d2q5", text: "The SEC was created by which of the following Acts?", options: ["Securities Act of 1933", "Securities Exchange Act of 1934", "Investment Company Act of 1940", "Trust Indenture Act of 1939"], correct: 1, rationale: "1933 = Paper Act (Primary); 1934 = People Act (Secondary/SEC)." }
+    ]
+  },
+  {
+    day: 3,
+    title: "The Business Cycle & Economics",
+    domain: "KCM",
+    content: [
+      { subtitle: "Cycle Phases", text: "1. Expansion (Growth) 2. Peak (Top) 3. Contraction (Decline) 4. Trough (Bottom). A recession is 2 consecutive quarters of GDP decline. A depression is 6 consecutive quarters." },
+      { subtitle: "Economic Indicators", text: "Leading: Stock market, housing permits. Coincident: GDP, personal income. Lagging: Corporate profits, duration of unemployment." },
+      { subtitle: "Inflation & Rates", text: "Inflation: Rising prices (Fed raises rates to fight it). Deflation: Falling prices. The Discount Rate: What the Fed charges banks. Fed Funds Rate: What banks charge each other (most volatile)." }
+    ],
+    questions: [
+      { id: "d3q1", text: "A recession is defined as a decline in GDP for how long?", options: ["1 month", "2 quarters", "4 quarters", "1 year"], correct: 1, rationale: "Recession = 2 quarters; Depression = 6 quarters." },
+      { id: "d3q2", text: "Which rate is considered the most volatile?", options: ["Prime Rate", "Discount Rate", "Fed Funds Rate", "Call Money Rate"], correct: 2, rationale: "Fed Funds Rate changes daily." },
+      { id: "d3q3", text: "Which of the following is a 'leading' indicator?", options: ["Personal Income", "Housing Permits", "Corporate Profits", "GDP"], correct: 1, rationale: "Housing starts show future economic activity." },
+      { id: "d3q4", text: "Fiscal policy is set by:", options: ["The Federal Reserve", "The President and Congress", "The SEC", "FINRA"], correct: 1, rationale: "Fiscal = Taxes/Spending (Congress); Monetary = Money Supply (Fed)." },
+      { id: "d3q5", text: "When inflation is rising, the Fed is likely to:", options: ["Buy securities", "Lower the reserve requirement", "Raise interest rates", "Decrease the discount rate"], correct: 2, rationale: "Raising rates slows the economy and fights inflation." }
+    ]
+  },
+  {
+    day: 4,
+    title: "Primary Market: IPOs & Offerings",
+    domain: "KCM",
+    content: [
+      { subtitle: "Securities Act of 1933", text: "The 'Paper Act.' Requires full and fair disclosure for new issues. Issues must be registered unless exempt." },
+      { subtitle: "Underwriting Types", text: "1. Firm Commitment: Underwriter buys all shares (takes risk). 2. Best Efforts: Underwriter sells what they can (no risk). 3. All-or-None: If not fully sold, the deal is cancelled." },
+      { subtitle: "Prospectus Timeline", text: "1. Pre-registration (No talk). 2. Cooling-off (20 days, 'Red Herring' distributed). 3. Post-effective (Sales begin, final prospectus delivered)." }
+    ],
+    questions: [
+      { id: "d4q1", text: "Which type of underwriting carries the most risk for the firm?", options: ["Best Efforts", "Firm Commitment", "Mini-Max", "All-or-None"], correct: 1, rationale: "Firm Commitment means the firm owns unsold shares." },
+      { id: "d4q2", text: "A 'Red Herring' is another name for a:", options: ["Final Prospectus", "Preliminary Prospectus", "Tombstone Ad", "Registration Statement"], correct: 1, rationale: "Distributed during the cooling-off period." },
+      { id: "d4q3", text: "How long is the standard cooling-off period?", options: ["10 days", "20 days", "30 days", "90 days"], correct: 1, rationale: "Minimum 20 days." },
+      { id: "d4q4", text: "Which of the following is an 'Exempt' security under the 1933 Act?", options: ["Common Stock", "Corporate Bonds", "Municipal Bonds", "Preferred Stock"], correct: 2, rationale: "Governments and Munis are exempt from registration." },
+      { id: "d4q5", text: "In a 'Best Efforts' underwriting, who bears the risk of unsold shares?", options: ["The Underwriter", "The Issuer", "The SEC", "The Investors"], correct: 1, rationale: "The issuer doesn't get the money if shares don't sell." }
+    ]
+  },
+  { day: 5, title: "Secondary Market Mechanics", domain: "TCA", content: [{subtitle:"Market Types", text:"Exchanges (NYSE) vs Over-the-counter (Nasdaq)."}], questions: [{id:"d5q1", text:"The Fourth Market is:", options:["Exchange trading","OTC trading","Institutional direct trading","Bond market"], correct:2, rationale:"Fourth market is ECN-based direct institutional trading."}] },
+  { day: 6, title: "Common Stock Deep Dive", domain: "PUR", content: [{subtitle:"Ownership", text:"Rights and risks of common stock."}], questions: [{id:"d6q1", text:"Primary risk of common stock?", options:["Interest rate","Market risk","Default risk","Credit risk"], correct:1, rationale:"Market risk is systemic risk."}] },
+  { day: 7, isReview: true, title: "Week 1 Comprehensive Review", content: [{subtitle:"Summary", text:"Review of Markets, Economics, and Offerings."}], questions: [] },
+  { day: 8, title: "Preferred Stock Hybrid Features", domain: "PUR", content: [{subtitle:"Dividends", text:"Cumulative vs Callable vs Convertible."}], questions: [{id:"d8q1", text:"Which preferred stock pays missed dividends?", options:["Callable","Participating","Cumulative","Straight"], correct:2, rationale:"Cumulative pays arrears."}] },
+  { day: 9, title: "Debt Fundamentals: Bonds", domain: "PUR", content: [{subtitle:"Bond Terms", text:"Yields, Coupons, and Pricing."}], questions: [{id:"d9q1", text:"If rates rise, bond prices...?", options:["Rise","Fall","Stay same","Zero"], correct:1, rationale:"Inverse relationship."}] },
+  { day: 10, title: "Treasuries & Agency Debt", domain: "PUR", content: [{subtitle:"Govt Debt", text:"Bills, Notes, Bonds, and Ginnie Maes."}], questions: [{id:"d10q1", text:"Only agency backed by full faith and credit?", options:["Fannie Mae","Freddie Mac","Ginnie Mae","Sallie Mae"], correct:2, rationale:"GNMA is government-backed."}] },
+  { day: 11, title: "Municipal Securities", domain: "PUR", content: [{subtitle:"Tax-Free Debt", text:"GO vs Revenue bonds."}], questions: [{id:"d11q1", text:"Backed by taxing power?", options:["Revenue","GO","Industrial","IDB"], correct:1, rationale:"General Obligation bonds use tax revenue."}] },
+  { day: 12, title: "Corporate Debt & Ratings", domain: "PUR", content: [{subtitle:"Credit Risk", text:"S&P/Moody's ratings."}], questions: [{id:"d12q1", text:"Highest speculative grade rating?", options:["BBB","Ba1","BB+","A"], correct:2, rationale:"BB+ is the top junk bond rating."}] },
+  { day: 13, title: "Money Market Instruments", domain: "PUR", content: [{subtitle:"Short Term", text:"Commercial Paper and BAs."}], questions: [{id:"d13q1", text:"Max maturity of CP?", options:["90 days","180 days","270 days","365 days"], correct:2, rationale:"270 days max."}] },
+  { day: 14, isReview: true, title: "Week 2 Comprehensive Review", content: [{subtitle:"Summary", text:"Deep dive into Debt and Equity."}], questions: [] },
+  { day: 15, title: "Options: The Fundamentals", domain: "PUR", content: [{subtitle:"Calls & Puts", text:"Bullish vs Bearish strategies."}], questions: [{id:"d15q1", text:"Buying a put is?", options:["Bullish","Bearish","Neutral","Long vol"], correct:1, rationale:"Puts profit on price drops."}] },
+  { day: 16, title: "Mutual Funds & Pricing", domain: "PUR", content: [{subtitle:"Investment Companies", text:"NAV and Redemption."}], questions: [{id:"d16q1", text:"Priced once per day?", options:["ETF","Stock","Mutual Fund","Option"], correct:2, rationale:"Forward pricing at end of day."}] },
+  { day: 17, title: "ETFs, UITs, and CEFs", domain: "PUR", content: [{subtitle:"Wrapped Products", text:"Comparison of fund types."}], questions: [{id:"d17q1", text:"Passive and trades like stock?", options:["Mutual Fund","UIT","ETF","Variable Annuity"], correct:2, rationale:"ETFs are exchange-traded."}] },
+  { day: 18, title: "Variable Annuities", domain: "PUR", content: [{subtitle:"Insurance + Investment", text:"Accumulation vs Payout."}], questions: [{id:"d18q1", text:"Who bears investment risk?", options:["Company","Investor","SEC","State"], correct:1, rationale:"The investor takes market risk."}] },
+  { day: 19, title: "REITs & DPPs", domain: "PUR", content: [{subtitle:"Alternatives", text:"Real estate and limited partnerships."}], questions: [{id:"d19q1", text:"Passes through losses?", options:["REIT","Mutual Fund","DPP","C-Corp"], correct:2, rationale:"Direct Participation Programs pass losses."}] },
+  { day: 20, title: "Risk: Systemic vs Non-Systemic", domain: "PUR", content: [{subtitle:"Market vs Business", text:"Diversification limits."}], questions: [{id:"d20q1", text:"Cannot be diversified away?", options:["Business risk","Market risk","Credit risk","Liquidity risk"], correct:1, rationale:"Market risk affects all."}] },
+  { day: 21, isReview: true, title: "Week 3 Comprehensive Review", content: [{subtitle:"Summary", text:"Complex products and Risk."}], questions: [] },
+  { day: 22, title: "Customer Account Types", domain: "TCA", content: [{subtitle:"Opening Accounts", text:"JTWROS, TIC, and Margin."}], questions: [{id:"d22q1", text:"Margin initial requirement (Reg T)?", options:["25%","50%","75%","100%"], correct:1, rationale:"Reg T is 50%."}] },
+  { day: 23, title: "Orders & Trading Rules", domain: "TCA", content: [{subtitle:"Trade Execution", text:"Market, Limit, and Stop orders."}], questions: [{id:"d23q1", text:"Executed at next available price?", options:["Limit","Market","GTC","AON"], correct:1, rationale:"Market orders execute immediately."}] },
+  { day: 24, title: "Prohibited Activities", domain: "TCA", content: [{subtitle:"Ethical Trading", text:"Insider trading and Front-running."}], questions: [{id:"d24q1", text:"Trading ahead of customer order?", options:["Churning","Front-running","Free-riding","Marking close"], correct:1, rationale:"Front-running uses non-public info."}] },
+  { day: 25, title: "Anti-Money Laundering (AML)", domain: "ORF", content: [{subtitle:"Compliance", text:"SARs and CTRs."}], questions: [{id:"d25q1", text:"CTR threshold?", options:["$3,000","$5,000","$10,000","$25,000"], correct:2, rationale:"Over $10k cash triggers CTR."}] },
+  { day: 26, title: "Communications & Suitability", domain: "ORF", content: [{subtitle:"Advertising", text:"Retail vs Institutional comms."}], questions: [{id:"d26q1", text:"Retail comm goes to more than?", options:["10","25","50","100"], correct:1, rationale:"25 retail investors."}] },
+  { day: 27, title: "Registration & Employee Conduct", domain: "ORF", content: [{subtitle:"U4/U5", text:"Registration and termination."}], questions: [{id:"d27q1", text:"Filing for termination?", options:["U4","U5","U6","ADV"], correct:1, rationale:"U5 within 30 days."}] },
+  { day: 28, isFinal: true, title: "SIE COMPREHENSIVE FINAL", content: [{subtitle:"Final Exam", text:"All 28 days of material. 75 Questions."}], questions: [] }
+];
+
+// --- APP COMPONENT ---
+
+const App = () => {
+  const [activeCourse, setActiveCourse] = useState(null);
+  const [currentView, setCurrentView] = useState('dashboard');
+  const [selectedDay, setSelectedDay] = useState(null);
+  const [progress, setProgress] = useState({
+    completedDays: [],
+    quizScores: {},
+    lastDay: 1
+  });
+  const [quizState, setQuizState] = useState({
+    currentIndex: 0,
+    answers: [],
+    isFinished: false,
+    activeQuestions: []
+  });
+
+  // Handle View Transitions (Scroll Reset)
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [currentView, selectedDay, activeCourse]);
+
+  // Persistence Initial Load
+  useEffect(() => {
+    try {
+      const savedProgress = localStorage.getItem('finprep_v4_progress');
+      const savedCourse = localStorage.getItem('finprep_v4_course');
+      if (savedProgress) setProgress(JSON.parse(savedProgress));
+      if (savedCourse) setActiveCourse(savedCourse);
+    } catch (e) {
+      console.error("Storage corrupt, resetting state.");
+    }
+  }, []);
+
+  // Persistence Save
+  useEffect(() => {
+    try {
+      localStorage.setItem('finprep_v4_progress', JSON.stringify(progress));
+      if (activeCourse) localStorage.setItem('finprep_v4_course', activeCourse);
+    } catch (e) {
+      console.warn("Storage quota likely exceeded.");
+    }
+  }, [progress, activeCourse]);
+
+  // Scoring Engine (Fixed Logic)
+  const stats = useMemo(() => {
+    if (activeCourse !== 'SIE') return { accuracy: 0, raw: {}, isPassing: false };
+
+    const domainTotals = { KCM: { c: 0, t: 0 }, PUR: { c: 0, t: 0 }, TCA: { c: 0, t: 0 }, ORF: { c: 0, t: 0 } };
+    
+    SIE_CURRICULUM.forEach(day => {
+      if (day.questions) {
+        day.questions.forEach(q => {
+          if (domainTotals[day.domain]) {
+            domainTotals[day.domain].t++;
+            if (progress.quizScores[q.id]) domainTotals[day.domain].c++;
+          }
+        });
+      }
+    });
+
+    let weightedSum = 0;
+    Object.keys(SECTIONS).forEach(key => {
+      const acc = domainTotals[key].t > 0 ? (domainTotals[key].c / domainTotals[key].t) : 0;
+      weightedSum += (acc * SECTIONS[key].weight);
+    });
+
+    const finalPct = Math.round(weightedSum * 100);
+    return { accuracy: finalPct, raw: domainTotals, isPassing: finalPct >= PASSING_SCORE };
+  }, [progress.quizScores, activeCourse]);
+
+  // Action Handlers
+  const handleCourseSelect = (course) => {
+    setActiveCourse(course);
+    setCurrentView('dashboard');
+  };
+
+  const resetProgress = () => {
+    if (window.confirm("Delete all study data and start over?")) {
+      setProgress({ completedDays: [], quizScores: {}, lastDay: 1 });
+      localStorage.clear();
+      window.location.reload();
+    }
+  };
+
+  const resetToHome = () => {
+    setActiveCourse(null);
+    setCurrentView('dashboard');
+  };
+
+  const startDay = (day) => {
+    setSelectedDay(day);
+    setCurrentView('lesson');
+  };
+
+  const startQuiz = (day) => {
+    let qs = [];
+    if (day.isReview) {
+      // Logic Fix: Pull from previous 6 days, strictly.
+      const start = Math.max(0, day.day - 7);
+      qs = SIE_CURRICULUM.slice(start, day.day - 1).flatMap(d => d.questions || []);
+    } else if (day.isFinal) {
+      qs = SIE_CURRICULUM.flatMap(d => d.questions || []).sort(() => Math.random() - 0.5);
+    } else {
+      qs = day.questions || [];
+    }
+    
+    // Safety check for empty questions
+    if (qs.length === 0) {
+      alert("This day's content is coming soon.");
+      return;
+    }
+
+    setQuizState({ currentIndex: 0, answers: [], isFinished: false, activeQuestions: qs });
+    setCurrentView('quiz');
+  };
+
+  const handleAnswer = (choiceIdx) => {
+    const q = quizState.activeQuestions[quizState.currentIndex];
+    const correct = q.correct === choiceIdx;
+    const newAnswers = [...quizState.answers, { qId: q.id, correct, chosen: choiceIdx }];
+    
+    if (quizState.currentIndex < quizState.activeQuestions.length - 1) {
+      setQuizState(prev => ({ ...prev, currentIndex: prev.currentIndex + 1, answers: newAnswers }));
+    } else {
+      const newScores = { ...progress.quizScores };
+      newAnswers.forEach(a => { if (a.qId) newScores[a.qId] = a.correct; });
+      
+      setProgress(prev => ({
+        ...prev,
+        completedDays: [...new Set([...prev.completedDays, selectedDay.day])],
+        quizScores: newScores
+      }));
+      setQuizState(prev => ({ ...prev, answers: newAnswers, isFinished: true }));
+    }
+  };
+
+  // --- VIEWS ---
+
+  const HomeView = () => (
+    <div className="max-w-4xl mx-auto px-6 py-12 md:py-24 animate-in fade-in slide-in-from-bottom-4">
+      <div className="text-center mb-16">
+        <div className="w-20 h-20 bg-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl">
+          <ShieldCheck size={40} className="text-white" />
+        </div>
+        <h1 className="text-5xl font-black text-slate-900 mb-4 tracking-tighter">FIN<span className="text-indigo-600">PREP</span></h1>
+        <p className="text-slate-500 font-medium max-w-sm mx-auto leading-relaxed">The industry standard for rapid financial certification mastery.</p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <button 
+          onClick={() => handleCourseSelect('SIE')}
+          className="group bg-white p-10 rounded-[3rem] border-2 border-slate-100 hover:border-indigo-600 hover:shadow-2xl transition-all text-left relative overflow-hidden"
+        >
+          <div className="bg-indigo-50 text-indigo-600 w-14 h-14 rounded-2xl flex items-center justify-center mb-8 group-hover:bg-indigo-600 group-hover:text-white transition-colors">
+            <Target size={28} />
+          </div>
+          <h2 className="text-3xl font-black text-slate-900 mb-2">SIE Exam</h2>
+          <p className="text-slate-500 font-medium mb-8">Comprehensive 28-day roadmap with FINRA-weighted scoring logic.</p>
+          <div className="flex items-center text-indigo-600 font-black gap-2">
+            RESUME STUDYING <ChevronRight size={20} />
+          </div>
+          {progress.completedDays.length > 0 && (
+            <div className="absolute top-10 right-10 bg-emerald-100 text-emerald-700 px-4 py-1 rounded-full text-[10px] font-black uppercase">
+              {Math.round((progress.completedDays.length / 28) * 100)}%
+            </div>
+          )}
+        </button>
+
+        <button className="group bg-slate-50 p-10 rounded-[3rem] border-2 border-dashed border-slate-200 opacity-60 text-left cursor-not-allowed">
+          <div className="bg-slate-200 text-slate-400 w-14 h-14 rounded-2xl flex items-center justify-center mb-8">
+            <Layers size={28} />
+          </div>
+          <h2 className="text-3xl font-black text-slate-400 mb-2">Series 7</h2>
+          <p className="text-slate-400 font-medium mb-8">Advanced General Securities Representative prep.</p>
+          <div className="text-slate-400 font-black uppercase tracking-widest text-xs">LOCKED</div>
+        </button>
+      </div>
+    </div>
+  );
+
+  const Dashboard = () => {
+    // Logic Fix: Ensure nextDay index is within bounds
+    const nextDayIndex = Math.min(progress.completedDays.length, 27);
+    const nextDay = SIE_CURRICULUM[nextDayIndex];
+
+    return (
+      <div className="max-w-6xl mx-auto p-4 md:p-10 space-y-10 animate-in fade-in">
+        <div className="bg-slate-900 rounded-[3rem] p-8 md:p-14 text-white shadow-2xl relative overflow-hidden">
+          <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+              <h1 className="text-4xl md:text-5xl font-black mb-4 tracking-tight">SIE Dashboard</h1>
+              <p className="text-slate-400 font-medium text-lg mb-10">Real-time weighted readiness assessment.</p>
+              
+              <div className="flex items-center gap-10">
+                <div>
+                  <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-2">Target Grade</p>
+                  <div className="flex items-baseline gap-2">
+                    <span className={`text-7xl font-black ${stats.isPassing ? 'text-emerald-400' : 'text-amber-400'}`}>{stats.accuracy}%</span>
+                    <span className="text-slate-500 font-bold text-xl">/ 100</span>
+                  </div>
+                </div>
+                <div className="h-20 w-px bg-slate-800 hidden sm:block" />
+                <div className="hidden sm:block">
+                  <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-2">Expert Status</p>
+                  <div className={`px-5 py-2 rounded-full font-black text-xs uppercase ${stats.isPassing ? 'bg-emerald-500/20 text-emerald-400' : 'bg-amber-500/20 text-amber-400'}`}>
+                    {stats.isPassing ? 'Exam Ready' : 'In Training'}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+               <div className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-md">
+                  <TrendingUp className="text-indigo-400 mb-3" size={24} />
+                  <p className="text-3xl font-black">{progress.completedDays.length}</p>
+                  <p className="text-[10px] font-black text-slate-500 uppercase">Days Done</p>
+               </div>
+               <div className="bg-white/5 border border-white/10 p-6 rounded-3xl backdrop-blur-md">
+                  <CheckCircle2 className="text-emerald-400 mb-3" size={24} />
+                  <p className="text-3xl font-black">{Object.keys(progress.quizScores).length}</p>
+                  <p className="text-[10px] font-black text-slate-500 uppercase">Mastered</p>
+               </div>
+            </div>
+          </div>
+          <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-indigo-600/10 to-transparent pointer-events-none" />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+          <div className="lg:col-span-2 space-y-8">
+            <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3"><BarChart3 size={24} className="text-indigo-600" /> Proficiency by Domain</h2>
+            <div className="bg-white rounded-[2.5rem] p-8 md:p-12 border border-slate-100 shadow-sm space-y-10">
+              {Object.entries(SECTIONS).map(([key, config]) => {
+                const acc = stats.raw[key] && stats.raw[key].t > 0 ? (stats.raw[key].c / stats.raw[key].t) * 100 : 0;
+                return (
+                  <div key={key}>
+                    <div className="flex justify-between items-end mb-4">
+                      <div>
+                        <h3 className="font-black text-slate-900 text-sm md:text-base">{config.name}</h3>
+                        <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest">WGT: {config.weight * 100}%</p>
+                      </div>
+                      <span className={`text-xl font-black ${acc >= 70 ? 'text-emerald-600' : 'text-amber-600'}`}>{Math.round(acc)}%</span>
+                    </div>
+                    <div className="h-4 bg-slate-100 rounded-full overflow-hidden">
+                      <div className={`h-full ${config.color} transition-all duration-1000 ease-out`} style={{ width: `${acc}%` }} />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-8">
+             <h2 className="text-2xl font-black text-slate-800">Current Task</h2>
+             <div className="bg-indigo-600 rounded-[2.5rem] p-10 text-white shadow-2xl shadow-indigo-100 flex flex-col justify-between min-h-[360px]">
+                <div>
+                  <h3 className="text-2xl font-bold mb-4">Day {nextDay.day} Prep</h3>
+                  <p className="text-indigo-100 leading-relaxed mb-8">{nextDay.title}. Extensive module with 5-10 interactive assessments.</p>
+                </div>
+                <button 
+                  onClick={() => startDay(nextDay)}
+                  className="w-full bg-white text-indigo-600 py-5 rounded-2xl font-black text-lg hover:bg-slate-50 transition-all flex items-center justify-center gap-3 shadow-xl"
+                >
+                  {progress.completedDays.length >= 28 ? "RETREAT EXAM" : "START DAY"} <ChevronRight size={20} />
+                </button>
+             </div>
+             
+             <button 
+                onClick={resetProgress}
+                className="w-full flex items-center justify-center gap-2 py-4 text-[10px] font-black text-slate-400 uppercase tracking-widest hover:text-rose-500 transition-colors"
+             >
+               <RefreshCcw size={14} /> Clear All Study History
+             </button>
+          </div>
+        </div>
+
+        <div className="space-y-8 pb-20">
+          <h2 className="text-2xl font-black text-slate-800 flex items-center gap-3"><Clock size={24} className="text-indigo-600" /> 28-Day Study Plan</h2>
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+            {SIE_CURRICULUM.map((day) => {
+              const isCompleted = progress.completedDays.includes(day.day);
+              const isUnlocked = day.day === 1 || progress.completedDays.includes(day.day - 1);
+              return (
+                <button
+                  key={day.day}
+                  disabled={!isUnlocked}
+                  onClick={() => startDay(day)}
+                  className={`p-6 rounded-[2rem] text-left transition-all border-2 relative overflow-hidden group ${
+                    isCompleted ? 'bg-emerald-50 border-emerald-100' :
+                    isUnlocked ? 'bg-white border-slate-100 hover:border-indigo-600 hover:shadow-xl' :
+                    'bg-slate-50 border-transparent opacity-40 grayscale cursor-not-allowed'
+                  }`}
+                >
+                  <div className="flex justify-between items-start mb-4">
+                     <span className={`text-[10px] font-black px-2 py-0.5 rounded uppercase ${
+                       day.isFinal ? 'bg-rose-100 text-rose-600' : day.isReview ? 'bg-amber-100 text-amber-600' : 'bg-slate-100 text-slate-500'
+                     }`}>
+                       {day.isFinal ? 'FIN' : day.isReview ? 'REV' : `D${day.day}`}
+                     </span>
+                     {isCompleted && <CheckCircle size={16} className="text-emerald-500" />}
+                  </div>
+                  <h4 className="text-[11px] font-black text-slate-900 leading-tight mb-3 h-8 overflow-hidden">{day.title}</h4>
+                  <div className={`w-8 h-1.5 rounded-full ${SECTIONS[day.domain]?.color || 'bg-slate-200'}`} />
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  const LessonView = () => (
+    <div className="max-w-4xl mx-auto p-4 md:p-12 min-h-screen animate-in fade-in slide-in-from-right-4">
+      <button onClick={() => setCurrentView('dashboard')} className="flex items-center gap-2 text-slate-400 font-bold text-xs mb-12 uppercase tracking-[0.2em] hover:text-slate-900 transition-colors">
+        <ArrowLeft size={16} /> Return to Hub
+      </button>
+
+      <div className="space-y-12">
+        <div className="flex items-center gap-6">
+          <div className={`w-20 h-20 rounded-3xl ${SECTIONS[selectedDay.domain]?.color || 'bg-slate-900'} text-white flex items-center justify-center shadow-2xl`}>
+             <BookOpen size={40} />
+          </div>
+          <div>
+             <p className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-2">{SECTIONS[selectedDay.domain]?.name || 'Milestone'}</p>
+             <h1 className="text-4xl md:text-5xl font-black text-slate-900 leading-none tracking-tight">Day {selectedDay.day}: {selectedDay.title}</h1>
+          </div>
+        </div>
+
+        <div className="bg-white rounded-[3rem] p-8 md:p-16 shadow-sm border border-slate-100 space-y-12">
+          {selectedDay.content.map((sec, i) => (
+            <div key={i} className="space-y-4">
+              <h3 className="text-2xl font-black text-slate-900 flex items-center gap-3">
+                <span className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-xs font-black">{i + 1}</span>
+                {sec.subtitle}
+              </h3>
+              <p className="text-lg text-slate-600 leading-relaxed font-medium">{sec.text}</p>
+            </div>
+          ))}
+        </div>
+
+        <button 
+          onClick={() => startQuiz(selectedDay)}
+          className="w-full bg-slate-900 text-white py-8 rounded-[2rem] font-black text-2xl hover:bg-indigo-600 transition-all shadow-2xl flex items-center justify-center gap-6 group"
+        >
+          {selectedDay.isFinal ? 'PROCEED TO FINAL EXAM' : 'START DAILY ASSESSMENT'}
+          <ChevronRight className="group-hover:translate-x-2 transition-transform" size={28} />
+        </button>
+      </div>
+    </div>
+  );
+
+  const QuizView = () => {
+    if (quizState.isFinished) {
+      const correct = quizState.answers.filter(a => a.correct).length;
+      const total = quizState.activeQuestions.length;
+      const score = Math.round((correct / total) * 100);
+
+      return (
+        <div className="max-w-3xl mx-auto p-8 py-20 flex flex-col items-center min-h-screen text-center animate-in zoom-in duration-500">
+           <div className={`w-32 h-32 rounded-full flex items-center justify-center mb-10 ${score >= 70 ? 'bg-emerald-100 text-emerald-600 shadow-2xl' : 'bg-amber-100 text-amber-600 shadow-2xl'}`}>
+             <Trophy size={64} />
+           </div>
+           <h2 className="text-6xl font-black text-slate-900 mb-2">{score}%</h2>
+           <p className="text-xl text-slate-500 font-bold mb-16">{score >= 70 ? 'Target met. High proficiency confirmed.' : 'Target missed. Please review rationales.'}</p>
+
+           <div className="w-full space-y-6 mb-16 text-left">
+             <h3 className="text-2xl font-black text-slate-900 mb-8 border-b pb-4">Audit Results</h3>
+             {quizState.activeQuestions.map((q, i) => (
+               <div key={i} className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm">
+                 <div className="flex gap-5 items-start mb-6">
+                    {quizState.answers[i].correct ? <CheckCircle className="text-emerald-500 mt-1 flex-shrink-0" size={24} /> : <AlertCircle className="text-rose-500 mt-1 flex-shrink-0" size={24} />}
+                    <h4 className="text-xl font-bold text-slate-900 leading-tight">{q.text}</h4>
+                 </div>
+                 <div className={`p-6 rounded-2xl text-sm leading-relaxed ${quizState.answers[i].correct ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'}`}>
+                    <span className="font-black uppercase text-[10px] block mb-2 opacity-60">Legal Context</span>
+                    {q.rationale}
+                 </div>
+               </div>
+             ))}
+           </div>
+
+           <button onClick={() => setCurrentView('dashboard')} className="w-full bg-slate-900 text-white py-6 rounded-[2rem] font-black text-xl shadow-2xl">
+              CONTINUE JOURNEY
+           </button>
+        </div>
+      );
+    }
+
+    const q = quizState.activeQuestions[quizState.currentIndex];
+    const progressPct = (quizState.currentIndex / quizState.activeQuestions.length) * 100;
+
+    return (
+      <div className="max-w-3xl mx-auto p-4 md:p-12 flex flex-col min-h-screen animate-in fade-in">
+        <div className="mb-16">
+          <div className="flex justify-between text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] mb-4">
+            <span>QUESTION {quizState.currentIndex + 1} / {quizState.activeQuestions.length}</span>
+            <span>{Math.round(progressPct)}% COMPLETE</span>
+          </div>
+          <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+            <div className="h-full bg-indigo-600 transition-all duration-300" style={{ width: `${progressPct}%` }} />
+          </div>
+        </div>
+
+        <div className="flex-grow flex flex-col justify-center">
+           <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-16 leading-tight tracking-tight">{q.text}</h2>
+           <div className="grid grid-cols-1 gap-5">
+             {q.options.map((opt, i) => (
+               <button
+                 key={i}
+                 onClick={() => handleAnswer(i)}
+                 className="group w-full text-left p-8 rounded-[2rem] border-2 border-slate-100 hover:border-indigo-600 hover:bg-indigo-50 transition-all flex items-center gap-8 shadow-sm hover:shadow-xl"
+               >
+                 <div className="w-12 h-12 rounded-2xl bg-slate-100 group-hover:bg-indigo-600 group-hover:text-white flex items-center justify-center text-lg font-black transition-colors">
+                   {String.fromCharCode(65 + i)}
+                 </div>
+                 <span className="text-xl font-bold text-slate-700 group-hover:text-indigo-950">{opt}</span>
+               </button>
+             ))}
+           </div>
+        </div>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-slate-50 selection:bg-indigo-100 selection:text-indigo-950 font-sans antialiased">
+      <nav className="sticky top-0 z-50 bg-white/70 backdrop-blur-2xl border-b border-slate-100 py-5 px-6 md:px-12">
+        <div className="max-w-7xl mx-auto flex justify-between items-center">
+          <button onClick={resetToHome} className="flex items-center gap-4 group">
+             <div className="bg-slate-900 text-white p-2.5 rounded-2xl group-hover:bg-indigo-600 transition-all">
+                <ShieldCheck size={24} />
+             </div>
+             <span className="font-black text-2xl tracking-tighter text-slate-900">FIN<span className="text-indigo-600">PREP</span></span>
+          </button>
+          
+          <div className="flex items-center gap-3">
+             {activeCourse && (
+               <button onClick={resetToHome} className="flex items-center gap-2 px-5 py-2.5 bg-slate-100 text-slate-500 rounded-full text-[10px] font-black uppercase tracking-widest hover:bg-slate-900 hover:text-white transition-all">
+                 <LogOut size={14} /> <span className="hidden sm:inline">Exit Course</span>
+               </button>
+             )}
+             <button className="p-3 text-slate-400 hover:text-slate-900 transition-colors">
+                <Menu size={28} />
+             </button>
+          </div>
+        </div>
+      </nav>
+
+      {!activeCourse && <HomeView />}
+      {activeCourse === 'SIE' && (
+        <div className="pb-10">
+          {currentView === 'dashboard' && <Dashboard />}
+          {currentView === 'lesson' && <LessonView />}
+          {currentView === 'quiz' && <QuizView />}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default App;
+
