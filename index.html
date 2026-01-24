@@ -3,902 +3,634 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>28-Day SIE Exam Prep Course</title>
+    <title>SIE Prep: 28-Day Course</title>
     <style>
         :root {
-            --bg-body: #f4f6f8;
-            --bg-card: #ffffff;
-            --bg-nav: #ffffff;
-            --text-main: #2d3748;
-            --text-muted: #718096;
-            --primary: #3182ce;
-            --primary-hover: #2b6cb0;
-            --border: #e2e8f0;
-            --success: #48bb78;
-            --warning: #ed8936;
+            --primary: #2563eb;
+            --primary-dark: #1e40af;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-800: #1f2937;
+            --white: #ffffff;
+            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
 
-        body.dark-mode {
-            --bg-body: #1a202c;
-            --bg-card: #2d3748;
-            --bg-nav: #2d3748;
-            --text-main: #f7fafc;
-            --text-muted: #a0aec0;
-            --primary: #63b3ed;
-            --primary-hover: #4299e1;
-            --border: #4a5568;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            font-family: var(--font-main);
+            background-color: var(--gray-100);
+            color: var(--gray-800);
+            line-height: 1.6;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        * { box-sizing: border-box; transition: background-color 0.3s ease, color 0.3s ease; }
-        body { font-family: 'Segoe UI', system-ui, sans-serif; background-color: var(--bg-body); color: var(--text-main); margin: 0; padding-bottom: 40px; }
-
-        /* Navigation */
-        nav {
-            position: sticky; top: 0; z-index: 100;
-            background: var(--bg-nav);
-            border-bottom: 1px solid var(--border);
-            padding: 1rem 2rem;
-            display: flex; justify-content: space-between; align-items: center;
+        /* Header */
+        header {
+            background-color: var(--white);
+            padding: 1rem;
             box-shadow: var(--shadow);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 10;
         }
-        .nav-brand { font-size: 1.5rem; font-weight: 800; color: var(--primary); }
-        .nav-controls { display: flex; gap: 1rem; }
-        
-        button {
-            cursor: pointer; padding: 0.5rem 1rem; border-radius: 6px; border: none; font-weight: 600;
-            background: var(--primary); color: white;
-        }
-        button:hover { background: var(--primary-hover); }
-        button.secondary { background: transparent; border: 1px solid var(--primary); color: var(--primary); }
-        body.dark-mode button.secondary { color: var(--primary); border-color: var(--primary); }
 
-        /* Dashboard */
-        .dashboard {
-            max-width: 1200px; margin: 2rem auto; padding: 0 1rem;
-            display: grid; grid-template-columns: 1fr 2fr; gap: 1.5rem;
+        .brand {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-decoration: none;
+            cursor: pointer;
         }
-        .stat-card {
-            background: var(--bg-card); padding: 1.5rem; border-radius: 12px;
-            box-shadow: var(--shadow); border: 1px solid var(--border);
-        }
-        .stat-card h3 { margin: 0 0 0.5rem 0; font-size: 0.9rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; }
-        .big-number { font-size: 2.5rem; font-weight: 800; color: var(--primary); }
-        
-        .progress-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-top: 1rem;
-        }
-        .mini-stat { background: rgba(0,0,0,0.03); padding: 0.8rem; border-radius: 8px; text-align: center; }
-        body.dark-mode .mini-stat { background: rgba(255,255,255,0.05); }
-        .mini-stat .label { display: block; font-size: 0.75rem; margin-bottom: 4px; color: var(--text-muted); }
-        .mini-stat .value { font-weight: bold; font-size: 1.1rem; }
 
-        /* Continuous Feed */
-        .feed-container {
-            max-width: 1200px; margin: 0 auto; padding: 0 1rem;
-            display: flex; flex-wrap: wrap; gap: 1.5rem;
+        .progress-indicator {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--gray-800);
         }
-        .day-card {
-            background: var(--bg-card);
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-            flex: 1 1 300px; /* Responsive: grows but keeps min-width */
-            display: flex; flex-direction: column;
-            overflow: hidden;
-            position: relative;
-        }
-        .day-header {
-            padding: 1rem 1.5rem;
-            border-bottom: 1px solid var(--border);
-            display: flex; justify-content: space-between; align-items: center;
-            background: rgba(0,0,0,0.02);
-        }
-        .day-tag {
-            font-size: 0.75rem; font-weight: bold; padding: 2px 8px; border-radius: 12px;
-            background: var(--border); color: var(--text-muted);
-        }
-        .day-content { padding: 1.5rem; flex-grow: 1; }
-        .day-content h2 { margin-top: 0; font-size: 1.25rem; }
-        .narrative { 
-            font-size: 0.95rem; line-height: 1.6; color: var(--text-muted); 
-            margin-bottom: 1.5rem; max-height: 300px; overflow-y: auto; 
-            white-space: pre-wrap; /* Preserves text formatting */
-        }
-        .day-footer { padding: 1rem 1.5rem; border-top: 1px solid var(--border); display: flex; justify-content: flex-end; }
-        
-        /* Checkbox custom */
-        .check-container { display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none; }
-        .check-box {
-            width: 24px; height: 24px; border: 2px solid var(--primary); border-radius: 6px;
-            display: flex; align-items: center; justify-content: center; transition: all 0.2s;
-        }
-        .check-container.checked .check-box { background: var(--primary); }
-        .check-container.checked .check-box::after { content: '✓'; color: white; font-weight: bold; }
 
-        /* Flashcard Overlay */
-        #flashcard-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: var(--bg-body); z-index: 200;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-        }
-        #flashcard-modal.active { display: flex; }
-        .fc-container { perspective: 1000px; width: 90%; max-width: 600px; height: 400px; cursor: pointer; }
-        .fc-card {
-            width: 100%; height: 100%; position: relative; transition: transform 0.6s; transform-style: preserve-3d;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-radius: 16px;
-        }
-        .fc-card.flipped { transform: rotateY(180deg); }
-        .fc-face {
-            position: absolute; width: 100%; height: 100%;
-            -webkit-backface-visibility: hidden; backface-visibility: hidden;
-            display: flex; align-items: center; justify-content: center; text-align: center;
-            padding: 2rem; font-size: 1.3rem; font-weight: 500;
-            background: var(--bg-card); color: var(--text-main);
-            border: 1px solid var(--border); border-radius: 16px;
+        /* Main Container */
+        main {
+            flex: 1;
             overflow-y: auto;
+            padding: 1rem;
+            max-width: 800px;
+            width: 100%;
+            margin: 0 auto;
         }
-        .fc-back { transform: rotateY(180deg); background: var(--bg-nav); color: var(--primary); }
-        .fc-controls { margin-top: 2rem; display: flex; gap: 1rem; }
 
-        @media (max-width: 768px) {
-            .dashboard { grid-template-columns: 1fr; }
-            .feed-container { flex-direction: column; }
-            .day-card { flex: 1 1 100%; }
+        /* Views */
+        .view { display: none; }
+        .view.active { display: block; animation: fadeIn 0.3s ease; }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Dashboard Grid */
+        .day-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .day-card {
+            background: var(--white);
+            border-radius: 8px;
+            padding: 1rem;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+            border: 2px solid transparent;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 140px;
+        }
+
+        .day-card:hover { transform: translateY(-2px); }
+        
+        .day-card.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+            background-color: var(--gray-200);
+        }
+
+        .day-card.completed { border-color: var(--success); }
+        .day-card.active { border-color: var(--primary); }
+
+        .day-num { font-size: 0.8rem; color: var(--gray-800); text-transform: uppercase; font-weight: 700; }
+        .day-title { font-size: 1rem; font-weight: 600; margin-top: 0.5rem; line-height: 1.3; }
+        .day-status { font-size: 0.8rem; margin-top: auto; font-weight: 600; }
+        .text-success { color: var(--success); }
+        .text-locked { color: var(--gray-800); }
+
+        /* Lesson View */
+        .lesson-header { margin-bottom: 1.5rem; }
+        .lesson-content { background: var(--white); padding: 2rem; border-radius: 8px; box-shadow: var(--shadow); }
+        .lesson-content h2 { margin-top: 1.5rem; color: var(--primary); }
+        .lesson-content p { margin-bottom: 1rem; }
+        .lesson-content ul { margin-bottom: 1rem; padding-left: 1.5rem; }
+        
+        .btn {
+            display: inline-block;
+            padding: 0.75rem 1.5rem;
+            border-radius: 6px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+            transition: background 0.2s;
+            text-align: center;
+        }
+
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-primary:hover { background: var(--primary-dark); }
+        .btn-outline { background: transparent; border: 2px solid var(--gray-200); color: var(--gray-800); }
+        .btn-full { width: 100%; margin-top: 1rem; }
+
+        /* Quiz View */
+        .quiz-container { background: var(--white); padding: 2rem; border-radius: 8px; box-shadow: var(--shadow); }
+        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 1.5rem; }
+        
+        .options-list { list-style: none; }
+        .option-item {
+            padding: 1rem;
+            border: 2px solid var(--gray-200);
+            border-radius: 6px;
+            margin-bottom: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .option-item:hover { border-color: var(--primary); background-color: #eff6ff; }
+        .option-item.selected { border-color: var(--primary); background-color: #eff6ff; font-weight: 600; }
+        
+        .option-item.correct { border-color: var(--success); background-color: #d1fae5; }
+        .option-item.incorrect { border-color: var(--danger); background-color: #fee2e2; }
+
+        .feedback {
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background-color: var(--gray-100);
+            border-radius: 6px;
+            display: none;
+        }
+
+        .feedback.show { display: block; }
+        
+        /* Modals / Overlays */
+        .modal {
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: flex; justify-content: center; align-items: center;
+            z-index: 100;
+            display: none;
+        }
+        .modal.open { display: flex; }
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        /* Utility */
+        .hidden { display: none !important; }
+        .flex-row { display: flex; gap: 1rem; justify-content: space-between; margin-top: 2rem; }
+        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; background: var(--gray-200); }
+        .badge-1 { background: #dbeafe; color: #1e40af; } /* Capital Markets */
+        .badge-2 { background: #fce7f3; color: #9d174d; } /* Products */
+        .badge-3 { background: #dcfce7; color: #166534; } /* Trading */
+        .badge-4 { background: #ffedd5; color: #9a3412; } /* Regulations */
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .lesson-content { padding: 1rem; }
+            .quiz-container { padding: 1rem; }
         }
     </style>
 </head>
 <body>
 
-<nav>
-    <div class="nav-brand">SIE Prep <span style="font-size:0.8em; opacity:0.6;">28-Day Plan</span></div>
-    <div class="nav-controls">
-        <button class="secondary" onclick="toggleFlashcards()">Flashcards</button>
-        <button id="theme-toggle" onclick="toggleTheme()">🌙</button>
-    </div>
-</nav>
+    <header>
+        <div class="brand" onclick="app.router.go('dashboard')">SIE Prep 28</div>
+        <div class="progress-indicator" id="globalProgress">Day 1 / 28</div>
+    </header>
 
-<section class="dashboard">
-    <div class="stat-card">
-        <h3>Course Completion</h3>
-        <div class="big-number" id="overall-score">0%</div>
-        <p style="font-size:0.8rem; color:var(--text-muted);">Days Completed / 28</p>
-    </div>
-    <div class="stat-card">
-        <h3>Weighted Section Mastery</h3>
-        <div class="progress-grid">
-            <div class="mini-stat">
-                <span class="label">Capital Mkts (16%)</span>
-                <span class="value" id="s1-score">0%</span>
+    <main id="app">
+        <!-- Dashboard View -->
+        <div id="view-dashboard" class="view active">
+            <h1>Your Roadmap</h1>
+            <p>28 Days to SIE Mastery. Unlock each day by passing the daily assessment.</p>
+            <div class="day-grid" id="dayGrid">
+                <!-- Cards injected via JS -->
             </div>
-            <div class="mini-stat">
-                <span class="label">Products (44%)</span>
-                <span class="value" id="s2-score">0%</span>
-            </div>
-            <div class="mini-stat">
-                <span class="label">Trading (31%)</span>
-                <span class="value" id="s3-score">0%</span>
-            </div>
-            <div class="mini-stat">
-                <span class="label">Regulations (9%)</span>
-                <span class="value" id="s4-score">0%</span>
-            </div>
+            <button class="btn btn-outline" style="margin-top: 2rem;" onclick="app.data.resetProgress()">Reset All Progress (Debug)</button>
         </div>
-    </div>
-</section>
 
-<main class="feed-container" id="feed">
-    <!-- Days injected here via JS -->
-</main>
-
-<!-- Flashcard Interface -->
-<div id="flashcard-modal">
-    <div style="margin-bottom: 2rem; text-align: center;">
-        <h2>Flashcard Mode</h2>
-        <p style="color:var(--text-muted)">Spacebar to Flip • Arrows to Navigate</p>
-    </div>
-    <div class="fc-container" onclick="flipCard()">
-        <div class="fc-card" id="active-card">
-            <div class="fc-face fc-front" id="fc-front">Question</div>
-            <div class="fc-face fc-back" id="fc-back">Answer</div>
+        <!-- Lesson View -->
+        <div id="view-lesson" class="view">
+            <div class="lesson-header">
+                <button class="btn btn-outline" onclick="app.router.go('dashboard')">← Back to Map</button>
+            </div>
+            <div id="lessonContent" class="lesson-content">
+                <!-- Content injected via JS -->
+            </div>
+            <button class="btn btn-primary btn-full" onclick="app.quiz.start()">Start Daily Assessment</button>
         </div>
-    </div>
-    <div class="fc-controls">
-        <button class="secondary" onclick="prevCard()">Previous</button>
-        <button onclick="nextCard()">Next</button>
-        <button class="secondary" style="margin-left: 2rem; border-color: red; color: red;" onclick="toggleFlashcards()">Exit</button>
-    </div>
-</div>
 
-<script>
-/**
- * DATA MODELS
- * Extracted directly from the provided 28-Day Course Document.
- * * Section Mapping for Weighted Dashboard:
- * Section 1 (16%): Days 1-7, 24
- * Section 2 (44%): Days 8-14, 25
- * Section 3 (31%): Days 15-21, 26
- * Section 4 (9%): Days 22-23
- * Mocks (0%): Days 27, 28 (Tracked in completion, but not in specific weighting)
- */
-
-const COURSE_DATA = [
-    // --- PART I: KNOWLEDGE OF CAPITAL MARKETS (Days 1-6) ---
-    {
-        day: 1,
-        title: "The Regulatory Ecosystem and Market Participants",
-        section: 1,
-        narrative: "The securities industry operates under a sophisticated hierarchy of regulatory bodies designed to maintain market integrity and protect investors. At the apex of this hierarchy sits the Securities and Exchange Commission (SEC), a federal agency established by the Securities Exchange Act of 1934. The SEC serves as the primary interpretative and enforcement body for federal securities laws, holding the ultimate authority over the registration of securities and the regulation of broker-dealers.\n\nBeneath the federal level, the industry relies heavily on Self-Regulatory Organizations (SROs). SROs are non-governmental organizations that have the power to create and enforce industry regulations and standards. The most prominent SRO is the Financial Industry Regulatory Authority (FINRA). FINRA regulates all matters related to investment banking (securities underwriting), trading in the over-the-counter (OTC) market, and the conduct of FINRA member firms and associated persons. It is critical to distinguish FINRA's role from that of the SEC; while the SEC is a federal agency, FINRA is a private corporation that acts as a regulator under SEC supervision.\n\nAnother critical SRO is the Municipal Securities Rulemaking Board (MSRB). The MSRB governs the issuance and trading of municipal securities. A nuanced distinction that frequently appears on the exam is the MSRB's enforcement power—or lack thereof. The MSRB creates rules for municipal firms but lacks enforcement authority. Its rules are enforced by FINRA (for broker-dealers) or banking regulators (such as the Comptroller of the Currency, the Federal Reserve, or the FDIC) for bank dealers.\n\nAt the state level, regulation is coordinated by the North American Securities Administrators Association (NASAA). State securities laws are colloquially known as \"Blue Sky Laws.\" These laws require the registration of securities, broker-dealers, and agents within each specific state, ensuring that investors are protected at the local level.\n\nThe ecosystem also includes insurance-like bodies. The Securities Investor Protection Corporation (SIPC) protects customers against the bankruptcy of a broker-dealer, not against market losses. SIPC coverage is limited to $500,000 per separate customer, with a sub-limit of $250,000 for cash claims. Conversely, the Federal Deposit Insurance Corporation (FDIC) insures bank deposits up to $250,000, covering checking and savings accounts rather than investment securities.",
-        questions: [
-            { q: "Which organization acts as the primary federal regulator of the securities industry?", a: "Securities and Exchange Commission (SEC)" },
-            { q: "Explain the enforcement authority of the MSRB.", a: "MSRB lacks enforcement authority. Its rules are enforced by FINRA or banking regulators." },
-            { q: "What is the maximum coverage limit provided by SIPC for a single customer's account?", a: "$500,000 per separate customer." },
-            { q: "Distinguish between the coverage provided by the FDIC and SIPC.", a: "FDIC insures bank deposits; SIPC protects against BD bankruptcy (securities/cash)." },
-            { q: "What are 'Blue Sky Laws' and which organization advocates for them?", a: "State securities laws; NASAA." },
-            { q: "Does SIPC coverage protect an investor from a decline in the market value of their portfolio?", a: "No, it does not protect against market loss." },
-            { q: "Identify the SRO responsible for regulating trading on the Chicago Board Options Exchange.", a: "CBOE is an SRO, but FINRA regulates member firms." },
-            { q: "Who enforces MSRB rules for a FINRA member firm?", a: "FINRA." },
-            { q: "What legislative act created the Securities and Exchange Commission?", a: "Securities Exchange Act of 1934." },
-            { q: "If a customer has $300,000 in stocks and $300,000 in cash at a failed broker-dealer, how much is covered by SIPC?", a: "$500,000 total, of which up to $250,000 can be cash. (Here $250k cash + $250k stock = $500k covered)." }
-        ]
-    },
-    {
-        day: 2,
-        title: "Economic Factors and Policy",
-        section: 1,
-        narrative: "Financial markets do not exist in a vacuum; they are heavily influenced by the macroeconomic environment. Candidates must demonstrate a nuanced understanding of the interplay between Fiscal Policy and Monetary Policy.\n\nFiscal Policy falls under the purview of Congress and the President. It utilizes government spending and taxation to influence the economy. An expansionary fiscal policy involves lowering taxes and increasing government spending to stimulate growth, while a contractionary policy involves raising taxes and cutting spending to curb inflation.\n\nMonetary Policy, conversely, is the domain of the Federal Reserve Board (the Fed). The Fed manages the money supply to achieve dual mandates: maximum employment and stable prices. The Fed utilizes three primary tools:\n1. Open Market Operations (OMO): The most frequently employed tool involves the buying and selling of government securities (Treasuries) in the open market. When the Fed buys Treasuries, it injects cash into the banking system, increasing the money supply and lowering interest rates (easing). When it sells Treasuries, it pulls cash out, tightening the supply and raising rates.\n2. The Discount Rate: This is the interest rate the Fed charges member banks for short-term loans. It is the only rate directly set by the Fed. A lower discount rate encourages borrowing and expands the money supply.\n3. Reserve Requirements: This mandates the percentage of deposits banks must hold in reserve. Changing this requirement has a multiplier effect on the money supply and is considered the most powerful, yet least frequently used, tool.\n\nThe economic climate is measured through indicators classified by their timing relative to the business cycle:\n- Leading Indicators (Predictive): Stock market indices (S&P 500), building permits, and average weekly unemployment claims.\n- Coincident Indicators (Current): Gross Domestic Product (GDP), industrial production, and personal income.\n- Lagging Indicators (Historical): Corporate profits, average duration of unemployment, and the prime rate.\n\nThe business cycle itself oscillates through four phases: Expansion (growth), Peak (maximum output), Contraction/Recession (decline), and Trough (bottom). A recession is technically defined as two consecutive quarters (6 months) of declining GDP.",
-        questions: [
-            { q: "Who is responsible for determining Fiscal Policy?", a: "Congress and the President." },
-            { q: "Describe the effect on the money supply when the Federal Reserve buys securities.", a: "Money supply increases (injections of cash)." },
-            { q: "Which Federal Reserve tool is considered the most powerful but least used?", a: "Reserve Requirements." },
-            { q: "Define 'Stagflation'.", a: "High inflation combined with high unemployment." },
-            { q: "Is the unemployment rate considered a leading, coincident, or lagging indicator?", a: "Average duration of unemployment is Lagging; Initial claims are Leading." },
-            { q: "What distinguishes the Discount Rate from the Federal Funds Rate?", a: "Discount Rate is set by the Fed; Fed Funds Rate is set by the market (banks lending to banks)." },
-            { q: "How many quarters of declining GDP define a recession?", a: "Two consecutive quarters." },
-            { q: "If the Fed wants to tighten the money supply, what action might it take regarding the Reserve Requirement?", a: "Raise the Reserve Requirement." },
-            { q: "Explain the relationship between inflation and purchasing power.", a: "Inverse relationship; high inflation erodes purchasing power." },
-            { q: "Why are housing starts/building permits considered leading indicators?", a: "They predict future economic activity (construction)." }
-        ]
-    },
-    {
-        day: 3,
-        title: "Market Structure: Primary vs. Secondary",
-        section: 1,
-        narrative: "The securities marketplace is bifurcated into primary and secondary markets, a distinction crucial for understanding capital formation and liquidity.\n\nThe Primary Market is the arena of creation. Here, issuers (corporations or governments) sell securities to the public for the first time to raise capital. In these transactions, the proceeds go directly to the issuer. Key concepts include:\n- Initial Public Offering (IPO): The first sale of stock by a private company to the public.\n- Follow-on Offering (APO): An issuance of new shares by a company that is already public.\n- Underwriters: Broker-dealers (investment banks) that facilitate these offerings. In a Firm Commitment underwriting, the bank buys the shares from the issuer and resells them, assuming the financial risk of unsold shares. In a Best Efforts underwriting, the bank acts as an agent, selling what it can without financial liability for unsold shares.\n- Shelf Registration: Under SEC Rule 415, issuers can register a security and sell it gradually over a two- or three-year period, allowing them to time market conditions favorable for raising capital.\n\nThe Secondary Market facilitates the trading of existing securities between investors. The issuer is not involved and receives no proceeds from these trades.\n- First Market (Exchanges): Auction markets like the NYSE where securities are listed and traded.\n- Second Market (OTC): Negotiated markets for unlisted securities.\n- Third Market: Exchange-listed securities traded over-the-counter.\n- Fourth Market: Direct institutional trading via Electronic Communication Networks (ECNs) without broker-dealer intermediation (Dark Pools).\n\nMarket Participants operate in two capacities:\n- Broker (Agent): Matches buyers and sellers for a commission. They do not own the security.\n- Dealer (Principal): Trades from their own inventory, earning a markup (selling) or markdown (buying). They assume inventory risk.",
-        questions: [
-            { q: "In which market does the issuer receive the proceeds from a securities sale?", a: "The Primary Market." },
-            { q: "Contrast 'Firm Commitment' and 'Best Efforts' underwriting.", a: "Firm Commitment: Underwriter buys shares/takes risk. Best Efforts: Underwriter acts as agent/no risk." },
-            { q: "What is a 'Shelf Registration'?", a: "Allows issuer to register securities and sell them gradually over 2-3 years." },
-            { q: "Define the role of a 'Market Maker'.", a: "A dealer who stands ready to buy or sell a specific security at quoted prices." },
-            { q: "Explain the difference between a Broker acting as an Agent vs. a Principal.", a: "Agent matches trades for commission; Principal trades from inventory for markup/down." },
-            { q: "What characterizes the Fourth Market?", a: "Direct institutional trading (ECNs/Dark Pools) without broker-dealers." },
-            { q: "What is an Initial Public Offering (IPO)?", a: "First sale of stock by a private company to the public." },
-            { q: "Identify the risk assumed by an underwriter in a Firm Commitment deal.", a: "Financial risk of unsold shares." },
-            { q: "How are prices determined on a physical exchange like the NYSE versus the OTC market?", a: "NYSE: Auction. OTC: Negotiation." },
-            { q: "What fee does a Broker earn versus a Dealer?", a: "Broker: Commission. Dealer: Markup/Markdown." }
-        ]
-    },
-    {
-        day: 4,
-        title: "Equity Securities",
-        section: 1,
-        narrative: "Equity securities represent ownership interest in a corporation. The exam tests specific characteristics of common and preferred stock.\n\nCommon Stock is the primary unit of ownership. It carries significant rights:\n- Voting Rights: Common stockholders vote on the board of directors and major corporate events (e.g., mergers).\n- Statutory Voting: Shareholders cast one vote per share for each seat. This favors majority shareholders.\n- Cumulative Voting: Shareholders can pool their votes and cast them all for a single candidate. This mechanism empowers minority shareholders.\n- Preemptive Rights: The right to maintain proportionate ownership if the company issues new shares, preventing dilution.\n- Limited Liability: Shareholders can only lose their investment; they are not liable for corporate debts.\n\nPreferred Stock is a hybrid security. It represents equity but behaves like debt, paying a fixed dividend (usually a percentage of par value, $100). It generally lacks voting rights but has priority over common stock in dividend payments and liquidation.\n- Cumulative Preferred: Missed dividends accumulate and must be paid in arrears before common shareholders receive anything.\n- Participating Preferred: Offers the potential for extra dividends if the company exceeds earnings targets.\n- Convertible Preferred: Can be exchanged for common stock, offering capital appreciation potential in exchange for a lower dividend rate.\n\nDerivative Equities:\n- American Depositary Receipts (ADRs): Issued by US banks to facilitate trading of foreign stocks in US markets. They are subject to currency risk, as the dividend is declared in foreign currency and converted to USD.\n- Warrants: Long-term instruments giving the right to buy stock at a price above the current market value. They are often attached to bonds as \"sweeteners\" to lower interest costs.\n- Rights: Short-term instruments (30-60 days) issued to existing shareholders to buy stock at a discount (below market value).",
-        questions: [
-            { q: "Which type of voting allows a shareholder to cast all their votes for one director?", a: "Cumulative Voting." },
-            { q: "Describe the primary benefit of Cumulative Preferred Stock.", a: "Missed dividends accumulate and must be paid in arrears." },
-            { q: "What is the specific risk associated with ADRs?", a: "Currency Risk." },
-            { q: "Compare Warrants and Rights regarding their exercise price relative to market value.", a: "Warrants: Exercise price > Market value (Premium). Rights: Exercise price < Market value (Discount)." },
-            { q: "Why would a corporation issue Convertible Preferred Stock?", a: "To offer capital appreciation potential, usually allowing a lower dividend rate." },
-            { q: "What is the 'par value' of a typical preferred stock?", a: "$100." },
-            { q: "In the event of corporate liquidation, where do Common Stockholders stand in priority?", a: "Last (Residual claim)." },
-            { q: "Define 'Preemptive Rights'.", a: "Right to maintain proportionate ownership to avoid dilution." },
-            { q: "How long do Warrants typically last compared to Rights?", a: "Warrants: Long-term (years). Rights: Short-term (30-60 days)." },
-            { q: "Does owning an ADR give the investor voting rights in the foreign company?", a: "Generally, no." }
-        ]
-    },
-    {
-        day: 5,
-        title: "Debt Securities Fundamentals",
-        section: 1,
-        narrative: "Debt securities (bonds) act as loans from investors to issuers. Mastery of bond mechanics is essential, particularly the inverse relationship between interest rates and bond prices.\n\nKey Terminology:\n- Par Value: The principal amount (usually $1,000) repaid at maturity.\n- Coupon (Nominal Yield): The fixed interest rate paid semi-annually.\n- Maturity Date: When the principal is returned.\n\nThe Price-Yield Relationship: Bond prices function like a seesaw with interest rates. When market interest rates rise, new bonds are issued with higher coupons, making existing bonds with lower coupons less attractive; thus, their price falls (trades at a Discount). Conversely, when rates fall, existing bonds with higher coupons become more valuable, and their price rises (trades at a Premium).\n\nYield Calculations:\n- Nominal Yield (NY): The coupon rate on the face of the bond.\n- Current Yield (CY): Annual Interest divided by Market Price.\n- Yield to Maturity (YTM): The total return anticipated if the bond is held until it matures. It accounts for the difference between the purchase price and par value.\n- Yield to Call (YTC): The yield if the bond is redeemed early by the issuer.\n\nThe Yield Seesaw:\n- Discount Bond: Price < Par. NY < CY < YTM < YTC.\n- Premium Bond: Price > Par. NY > CY > YTM > YTC.\n\nFeatures:\n- Call Feature: Allows the issuer to redeem the bond before maturity. Issuers call bonds when interest rates fall (refinancing). This creates Reinvestment Risk for the investor.\n- Put Feature: Allows the investor to sell the bond back to the issuer early. Investors put bonds when interest rates rise.",
-        questions: [
-            { q: "If market interest rates rise, what happens to the market price of outstanding bonds?", a: "Price decreases." },
-            { q: "Rank the yields (Nominal, Current, YTM, YTC) for a bond trading at a premium.", a: "NY > CY > YTM > YTC." },
-            { q: "What is the 'Coupon Rate'?", a: "The fixed interest rate paid (Nominal Yield)." },
-            { q: "Define 'Reinvestment Risk' in the context of callable bonds.", a: "Risk that proceeds from a called bond must be reinvested at a lower rate." },
-            { q: "Calculate the Current Yield of a 5% bond trading at $800.", a: "5% of 1000 = $50. $50 / $800 = 6.25%." },
-            { q: "Which yield is disclosed as the 'Yield to Worst' on a trade confirmation for a premium bond?", a: "Yield to Call (YTC)." },
-            { q: "What feature benefits the investor if interest rates rise?", a: "Put Feature." },
-            { q: "Describe the relationship between bond prices and yields.", a: "Inverse relationship." },
-            { q: "A bond with a 10-year maturity has higher or lower interest rate risk than a bond with a 2-year maturity?", a: "Higher." },
-            { q: "Why would an issuer choose to call a bond?", a: "To refinance debt at a lower interest rate." }
-        ]
-    },
-    {
-        day: 6,
-        title: "Types of Debt (Government, Municipal, Corporate)",
-        section: 1,
-        narrative: "US Government Securities: Backed by the \"full faith and credit\" of the US government, these are considered the safest debt assets.\n- Treasury Bills (T-Bills): Short-term (<1 year), issued at a discount to par, do not pay semi-annual interest.\n- Treasury Notes (T-Notes): Intermediate-term (2-10 years), pay semi-annual interest.\n- Treasury Bonds (T-Bonds): Long-term (10-30 years), pay semi-annual interest.\n- TIPS (Treasury Inflation-Protected Securities): Principal is adjusted semi-annually based on the CPI, protecting against inflation.\n\nMunicipal Bonds: Issued by state and local governments. Interest is generally exempt from federal income tax.\n- General Obligation (GO): Backed by the taxing power of the issuer (income/property taxes). Requires voter approval.\n- Revenue Bonds: Backed by user fees from specific projects (toll roads, airports). No voter approval required.\n\nCorporate Bonds:\n- Secured Bonds: Backed by collateral (Mortgage bonds - real estate; Equipment Trust Certificates - airplanes/trains).\n- Unsecured (Debentures): Backed only by the corporation's good faith. Subordinated debentures have the lowest claim in bankruptcy.\n\nMoney Market Instruments: Short-term, high-quality debt including Commercial Paper (max 270 days maturity), Banker’s Acceptances (for import/export), and Jumbo CDs.",
-        questions: [
-            { q: "Which US Treasury security is issued at a discount?", a: "Treasury Bills (T-Bills)." },
-            { q: "Distinguish between GO Bonds and Revenue Bonds.", a: "GO: Backed by taxes (voter approval). Revenue: Backed by user fees (no voter approval)." },
-            { q: "What is the tax status of interest income from Municipal Bonds?", a: "Generally exempt from federal income tax." },
-            { q: "What collateral backs an Equipment Trust Certificate?", a: "Equipment (e.g., airplanes, trains)." },
-            { q: "Define 'Debenture'.", a: "Unsecured corporate bond backed by good faith/credit." },
-            { q: "What is the maximum maturity of Commercial Paper?", a: "270 days." },
-            { q: "Which instrument protects investors specifically against inflation?", a: "TIPS (Treasury Inflation-Protected Securities)." },
-            { q: "Rank the safety of T-Bills, Corporate Debentures, and GO Bonds.", a: "T-Bills > GO Bonds > Corporate Debentures." },
-            { q: "What are Banker's Acceptances primarily used for?", a: "Facilitating import/export transactions." },
-            { q: "In a corporate liquidation, which debt holder gets paid first: Secured Bondholder or Subordinated Debenture holder?", a: "Secured Bondholder." }
-        ]
-    },
-    {
-        day: 7,
-        title: "Cumulative Test 1 (Capital Markets)",
-        section: 1,
-        narrative: "Scope: Days 1-6. Focus on the relationship between Economic factors and Bond prices.",
-        questions: [
-            { q: "The Securities Exchange Act of 1934 created which federal agency?", a: "SEC." },
-            { q: "Which economic indicator confirms where the economy has been?", a: "Lagging Indicator." },
-            { q: "A 'shelf registration' is valid for how many years?", a: "2 or 3 years." },
-            { q: "Describe the voting rights of a holder of Cumulative Preferred Stock.", a: "Usually no voting rights (Trick question - Cumulative Voting applies to Common Stock. Cumulative Preferred refers to dividends)." },
-            { q: "Calculate the annual interest payment of a 6% bond.", a: "$60." },
-            { q: "Which interest rate is the most volatile?", a: "Federal Funds Rate." },
-            { q: "Does SIPC cover commodities or futures contracts?", a: "No." },
-            { q: "Explain the tax benefit of a 'Triple Tax-Free' municipal bond.", a: "Exempt from Federal, State, and Local taxes (if purchaser lives in issuer state)." },
-            { q: "What is the primary difference between the Primary and Secondary markets?", a: "Primary: Issuer receives proceeds. Secondary: Investor-to-Investor." },
-            { q: "If the Federal Reserve raises the Reserve Requirement, what is the impact on the economy?", a: "Tightens money supply (Contractionary)." }
-        ]
-    },
-
-    // --- PART II: UNDERSTANDING PRODUCTS AND THEIR RISKS (Days 8-13) ---
-    {
-        day: 8,
-        title: "Options Fundamentals",
-        section: 2,
-        narrative: "Options are derivative contracts that derive value from an underlying asset.\n\nContract Mechanics: One standard option contract covers 100 shares of the underlying stock.\n- Premium: The cost of the option (e.g., a premium of 3 = $300 total cost).\n- Strike Price: The agreed-upon price for the transaction.\n- Expiration: Typically the third Friday of the expiration month.\n\nThe Four Core Positions:\n- Long Call (Buyer): Has the Right to Buy. Bullish. Max Loss = Premium Paid. Max Gain = Unlimited.\n- Short Call (Seller): Has the Obligation to Sell. Bearish/Neutral. Max Loss = Unlimited (if naked). Max Gain = Premium Received.\n- Long Put (Buyer): Has the Right to Sell. Bearish. Max Loss = Premium Paid. Max Gain = Strike Price - Premium (stock goes to zero).\n- Short Put (Seller): Has the Obligation to Buy. Bullish/Neutral. Max Loss = Strike Price - Premium. Max Gain = Premium Received.\n\nMoneyness:\n- In-the-Money (ITM): The option has intrinsic value.\n  - Call is ITM if Market Price > Strike Price.\n  - Put is ITM if Market Price < Strike Price.\n- Out-of-the-Money (OTM): No intrinsic value.\n- At-the-Money (ATM): Market Price = Strike Price.",
-        questions: [
-            { q: "Identify the rights of a Long Call holder.", a: "Right to buy stock at the strike price." },
-            { q: "What is the maximum loss for a writer of a naked call?", a: "Unlimited." },
-            { q: "If a stock is trading at $50, is a Put with a $40 strike ITM or OTM?", a: "OTM (40 < 50)." },
-            { q: "Define 'Intrinsic Value'.", a: "Amount by which an option is In-the-Money." },
-            { q: "How many shares are covered by 5 option contracts?", a: "500 shares." },
-            { q: "Who has the obligation in an option contract?", a: "The Seller (Writer)." },
-            { q: "What is the Breakeven point for a Long Call with Strike 50 and Premium 3?", a: "53 (50 + 3)." },
-            { q: "Describe the market sentiment of a Long Put buyer.", a: "Bearish." },
-            { q: "What happens to an option that is OTM at expiration?", a: "It expires worthless." },
-            { q: "Calculate the cost of buying 2 contracts at a premium of $4.50.", a: "$900 (2 * 100 * 4.50)." }
-        ]
-    },
-    {
-        day: 9,
-        title: "Options Strategies and Hedging",
-        section: 2,
-        narrative: "Beyond speculation, options are vital tools for Hedging (insurance) and Income Generation.\n\nHedging Strategies:\n- Protective Put: An investor owns the stock (Long Stock) but fears a short-term decline. By purchasing a Put, they lock in a minimum sale price. This acts like an insurance policy. The max loss is limited to the cost of the put plus the difference between the stock price and strike price.\n- Protective Call: An investor has sold stock short (Short Stock) and fears a price rise. Buying a Call locks in a maximum purchase price to cover the short position, capping the potentially unlimited risk.\n\nIncome Strategies:\n- Covered Call: An investor owns the stock and sells a Call against it.\n  - Objective: To generate income from the premium received.\n  - Risk: The upside is capped (if the stock rises, it gets called away). This is considered a conservative strategy allowed in some retirement accounts.\n\nClosing Transactions: To exit an option position, an investor performs the opposite action.\n- Opening Purchase is closed by a Closing Sale.\n- Opening Sale is closed by a Closing Purchase.",
-        questions: [
-            { q: "Which strategy best protects a Long Stock position?", a: "Protective Put." },
-            { q: "What is the primary purpose of writing a Covered Call?", a: "Income generation." },
-            { q: "Describe the risk profile of a Covered Call vs. a Naked Call.", a: "Covered Call: Limited risk. Naked Call: Unlimited risk." },
-            { q: "To close a position where you initially sold a put, what order do you enter?", a: "Closing Purchase." },
-            { q: "Calculate the max gain for a Long Stock + Long Put position.", a: "Unlimited (if stock rises)." },
-            { q: "Why would a short seller buy a call option?", a: "To hedge/protect against a price rise (Protective Call)." },
-            { q: "What is the maximum gain in a Covered Call strategy?", a: "Premium received + (Strike Price - Stock Purchase Price)." },
-            { q: "Define 'Closing Purchase'.", a: "Buying an option to close an existing short position." },
-            { q: "Which option strategy is suitable for a neutral/slightly bullish investor wanting income?", a: "Covered Call (or Short Put)." },
-            { q: "Explain how a Protective Put acts like insurance.", a: "Sets a floor price for the stock." }
-        ]
-    },
-    {
-        day: 10,
-        title: "Investment Companies (Mutual Funds)",
-        section: 2,
-        narrative: "The Investment Company Act of 1940 regulates packaged products.\n\nOpen-End Funds (Mutual Funds):\n- Capitalization: Continuous offering of new shares. Unlimited number of shares available.\n- Pricing: Shares are bought at the Public Offering Price (POP) and redeemed at the Net Asset Value (NAV).\n- Forward Pricing: The price is determined at the next calculation of NAV (usually 4:00 PM ET) after the order is received.\n- Liquidity: Redeemable with the fund; they do not trade on secondary markets.\n\nShare Classes:\n- Class A: Front-end load (sales charge). Lower annual 12b-1 fees. Best for long-term investors with large sums (due to Breakpoints).\n- Class B: Back-end load (Contingent Deferred Sales Charge - CDSC). Converts to A shares after several years. No breakpoints.\n- Class C: Level load (annual fees). No front-end/back-end load (usually 1% CDSC for 1 year). Best for short-term investors.\n\nSales Charge Reductions:\n- Breakpoints: Discounts on sales charges for investing specific dollar amounts (e.g., $25k, $50k).\n- Letter of Intent (LOI): Allows an investor 13 months to reach a breakpoint amount.\n- Rights of Accumulation (ROA): Counts past investments toward the breakpoint.\n\nClosed-End Funds: Issue a fixed number of shares via an IPO. They trade on exchanges (Secondary Market) like stocks. Their price is determined by supply and demand, meaning they can trade at a Premium or Discount to their NAV.",
-        questions: [
-            { q: "Distinguish between Open-End and Closed-End funds regarding capitalization.", a: "Open-End: Continuous offering. Closed-End: Fixed number of shares (IPO)." },
-            { q: "What is 'Forward Pricing'?", a: "Price determined at next NAV calc (4:00 PM)." },
-            { q: "Which share class is most appropriate for a large investment of $100,000?", a: "Class A (Breakpoints)." },
-            { q: "Define 'Breakpoint Sale' and explain why it is prohibited.", a: "Selling just below a breakpoint to earn higher commission. Prohibited." },
-            { q: "How is the price of a Closed-End fund determined?", a: "Supply and demand (Secondary market)." },
-            { q: "What is the maximum duration of a Letter of Intent (LOI)?", a: "13 months." },
-            { q: "Compare Class B and Class C shares.", a: "Class B: Back-end load, converts to A. Class C: Level load, short-term." },
-            { q: "What fees are covered by 12b-1 charges?", a: "Marketing and distribution." },
-            { q: "Can Mutual Fund shares be purchased on margin?", a: "Only after being held for 30 days." },
-            { q: "What is the difference between NAV and POP?", a: "POP includes the sales charge. NAV is the asset value." }
-        ]
-    },
-    {
-        day: 11,
-        title: "ETFs, ETNs, and REITs",
-        section: 2,
-        narrative: "Exchange Traded Funds (ETFs): ETFs track an index (e.g., S&P 500) but trade like stocks on an exchange. Unlike mutual funds, they can be bought on margin, sold short, and traded intraday. They are generally more tax-efficient and have lower expense ratios than mutual funds.\n\nExchange Traded Notes (ETNs): ETNs are unsecured debt instruments issued by banks. They track an index but do not own the underlying securities.\nRisk: In addition to market risk, ETNs carry Credit Risk. If the issuing bank goes bankrupt, the investor could lose everything, even if the index performed well.\n\nReal Estate Investment Trusts (REITs): REITs allow retail investors to invest in real estate portfolios.\n- Equity REITs: Own and operate properties (income from rent).\n- Mortgage REITs: Own mortgages (income from interest).\nTax Benefit (Subchapter M): If a REIT distributes at least 90% of its taxable income to shareholders annually, it acts as a pass-through entity and pays no corporate income tax. However, dividends are taxed as ordinary income to the investor.",
-        questions: [
-            { q: "What is the primary trading difference between ETFs and Mutual Funds?", a: "ETFs trade intraday on exchanges; Mutual Funds price once daily." },
-            { q: "Identify the unique risk associated with ETNs.", a: "Credit Risk (Issuer default)." },
-            { q: "How much income must a REIT distribute to avoid corporate taxation?", a: "90%." },
-            { q: "Can ETFs be sold short?", a: "Yes." },
-            { q: "Distinguish between Equity REITs and Mortgage REITs.", a: "Equity: Own properties. Mortgage: Own debt/loans." },
-            { q: "Are REIT dividends taxed as qualified dividends or ordinary income?", a: "Ordinary Income." },
-            { q: "What assets backs an ETN?", a: "None. Backed by the credit of the issuer." },
-            { q: "Explain the liquidity benefits of a REIT compared to direct real estate ownership.", a: "REITs trade on exchanges (highly liquid)." },
-            { q: "Do ETFs have 12b-1 fees?", a: "Generally no." },
-            { q: "What is the 'pass-through' feature of a REIT?", a: "Passes income to investors, avoids corporate tax." }
-        ]
-    },
-    {
-        day: 12,
-        title: "Direct Participation Programs (DPPs)",
-        section: 2,
-        narrative: "DPPs are business structures that pass income, gains, losses, and tax credits directly to investors, bypassing corporate taxation. The most common form is the Limited Partnership (LP).\n\nLimited Partnership Structure:\n- General Partner (GP): The active manager. Has unlimited liability (can lose personal assets).\n- Limited Partner (LP): Passive investor. Has limited liability (can only lose their investment). Critical Rule: If an LP begins to manage the business, they jeopardize their limited liability status.\n\nTypes of DPPs:\n- Real Estate:\n  - Raw Land: Appreciation potential only (no income/depreciation). High risk.\n  - Existing Properties: Income stream. Lower risk.\n- Oil & Gas:\n  - Exploratory (Wildcatting): Drilling in unproven areas. High Risk / High Reward. High tax write-offs (Intangible Drilling Costs).\n  - Income: Buying producing wells. Lowest risk.\n\nRisks: DPPs are Illiquid. There is no active secondary market. Investors must commit capital for long periods.\n\nHedge Funds: Private investment partnerships for wealthy investors. They are unregulated (exempt from the Investment Company Act of 1940) and use aggressive strategies like leverage and short selling. Restricted to Accredited Investors.",
-        questions: [
-            { q: "Who assumes unlimited liability in a Limited Partnership?", a: "General Partner." },
-            { q: "What happens if a Limited Partner takes an active role in management?", a: "They may lose limited liability status." },
-            { q: "Why are DPPs considered illiquid?", a: "No secondary market." },
-            { q: "Which Oil & Gas program offers the highest potential reward but highest risk?", a: "Exploratory (Wildcatting)." },
-            { q: "Define 'Accredited Investor' for Hedge Fund eligibility.", a: "$1M net worth (excl. home) or $200k income ($300k joint)." },
-            { q: "What is the primary tax benefit of a DPP?", a: "Flow-through of losses/income." },
-            { q: "Describe the objective of a Raw Land partnership.", a: "Capital appreciation." },
-            { q: "How do Hedge Funds differ from Mutual Funds regarding regulation?", a: "Hedge Funds are largely unregulated." },
-            { q: "What are Intangible Drilling Costs (IDCs)?", a: "Tax write-offs for non-salvageable drilling costs (labor, fuel)." },
-            { q: "Can a DPP be traded on the NYSE?", a: "Generally No (Master Limited Partnerships are an exception, but standard DPPs no)." }
-        ]
-    },
-    {
-        day: 13,
-        title: "Investment Risks (Systematic vs. Non-Systematic)",
-        section: 2,
-        narrative: "Understanding risk is central to the \"Products\" section.\n\nSystematic Risk (Market Risk): Risk that affects the entire financial system. It cannot be eliminated through diversification.\n- Market Risk: The risk that the overall market declines.\n- Interest Rate Risk: The risk that rising rates cause bond prices to fall. (Long-term, low-coupon bonds are most sensitive).\n- Inflation (Purchasing Power) Risk: The risk that cash flows lose value over time.\nMitigation: Hedging (e.g., buying Puts).\n\nNon-Systematic Risk: Risk specific to a single company or sector. It can be eliminated through Diversification.\n- Business Risk: Poor management or obsolete products.\n- Credit (Default) Risk: The issuer cannot pay interest/principal.\n- Liquidity Risk: The inability to sell an asset quickly without impacting the price.\n- Regulatory/Legislative Risk: Changes in law (e.g., EPA rules).\n\nMeasurement Tools:\n- Beta: Measures a stock's volatility relative to the market (S&P 500). Beta = 1 (Market). Beta > 1 (More volatile).\n- Duration: Measures a bond's sensitivity to interest rate changes.",
-        questions: [
-            { q: "Which type of risk cannot be diversified away?", a: "Systematic (Market) Risk." },
-            { q: "How does 'Duration' relate to Interest Rate Risk?", a: "Higher duration = Higher sensitivity to interest rate changes." },
-            { q: "What is the best protection against Purchasing Power Risk?", a: "Equities (stocks) or TIPS." },
-            { q: "Define 'Liquidity Risk' and give an example of an illiquid asset.", a: "Inability to sell quickly. Example: DPP or Real Estate." },
-            { q: "If a stock has a Beta of 1.5, how is it expected to perform relative to the market?", a: "50% more volatile than the market." },
-            { q: "Is 'Business Risk' systematic or non-systematic?", a: "Non-Systematic." },
-            { q: "Which bonds have the highest Interest Rate Risk?", a: "Long-term, low-coupon (Zero-coupon)." },
-            { q: "Describe 'Call Risk' and when it occurs.", a: "Risk of bond being called when rates fall." },
-            { q: "What strategy mitigates Non-Systematic risk?", a: "Diversification." },
-            { q: "How does Currency Risk affect ADRs?", a: "Value changes based on exchange rate between USD and foreign currency." }
-        ]
-    },
-    {
-        day: 14,
-        title: "Cumulative Test 2 (Products & Risks)",
-        section: 2,
-        narrative: "Scope: Days 8-13. 30 Questions.",
-        questions: [
-            { q: "An investor sells a Put option. What is their market sentiment?", a: "Bullish/Neutral." },
-            { q: "Calculate the breakeven price for a stock purchased at $50 with a written call at $5.", a: "$45." },
-            { q: "Which mutual fund share class carries a back-end load?", a: "Class B." },
-            { q: "Explain the tax treatment of REIT dividends.", a: "Ordinary Income." },
-            { q: "What is the maximum loss on a Long Put?", a: "Premium paid." },
-            { q: "Compare the liquidity of ETFs vs. DPPs.", a: "ETFs: Liquid. DPPs: Illiquid." },
-            { q: "A bond with a high duration is most sensitive to which risk?", a: "Interest Rate Risk." },
-            { q: "What is the 'spread' in an option quote?", a: "Difference between Bid and Ask." },
-            { q: "Why are ETNs subject to credit risk?", a: "They are unsecured debt of the issuer." },
-            { q: "Identify the prohibited practice of 'Breaking the Breakpoint'.", a: "Splitting purchases to avoid hitting a breakpoint discount." }
-        ]
-    },
-
-    // --- PART III: TRADING, CUSTOMER ACCOUNTS, AND PROHIBITED ACTIVITIES (Days 15-20) ---
-    {
-        day: 15,
-        title: "Trading Markets and Order Types",
-        section: 3,
-        narrative: "Market Microstructure:\n- Bid: The highest price a buyer is willing to pay. This is the price an investor receives when selling.\n- Ask (Offer): The lowest price a seller is willing to accept. This is the price an investor pays when buying.\n- Spread: The difference between Bid and Ask (Profit for the Market Maker).\n\nOrder Types:\n- Market Order: Guarantees execution, but not price. Fills immediately at the best available price.\n- Limit Order: Guarantees price, but not execution.\n  - Buy Limit: Set below current market. \"Buy at $50 or less.\"\n  - Sell Limit: Set above current market. \"Sell at $60 or more.\"\n- Stop Order (Stop Loss): A trigger mechanism. When the price hits the \"Stop,\" it becomes a Market Order.\n  - Sell Stop: Set below market. Protects a Long position.\n  - Buy Stop: Set above market. Protects a Short position.\n- Stop-Limit: Becomes a Limit order after the stop triggers. Risk: The market moves through the limit price, and the order is never filled.\n\nTime in Force:\n- Day Order: Expires at 4:00 PM ET.\n- GTC (Good Til Canceled): Remains active until filled or canceled.",
-        questions: [
-            { q: "Which order type guarantees execution?", a: "Market Order." },
-            { q: "An investor wants to buy stock at $40 or better. What order do they place?", a: "Buy Limit at $40." },
-            { q: "To protect a profit on a Long Stock position, what order is used?", a: "Sell Stop." },
-            { q: "Define the 'Bid-Ask Spread'.", a: "Difference between highest Bid and lowest Ask." },
-            { q: "Does a Limit Order guarantee a fill?", a: "No." },
-            { q: "What happens to a Stop Order once the stop price is hit?", a: "It becomes a Market Order." },
-            { q: "Explain the purpose of a 'Buy Stop' for a short seller.", a: "To protect against a price rise (limit loss)." },
-            { q: "What is the risk of a Stop-Limit order?", a: "It may not execute if price moves through the limit." },
-            { q: "Who receives the 'Ask' price?", a: "The Market Maker (selling to the investor)." },
-            { q: "Distinguish between GTC and Day orders.", a: "Day expires at 4pm; GTC stays open." }
-        ]
-    },
-    {
-        day: 16,
-        title: "Settlement and Corporate Actions",
-        section: 3,
-        narrative: "Settlement Cycles: As of May 28, 2024, the settlement cycle for most securities has shortened to T+1 (Trade Date + 1 Business Day).\n- T+1: Equities, Corporate Bonds, Municipal Bonds, US Government Securities, Options.\n- Same Day: Cash Settlement (must be completed by 2:30 PM ET).\n\nCorporate Actions:\n- Stock Splits:\n  - Forward Split (2:1): Shares increase, Price decreases. Total value unchanged.\n  - Reverse Split (1:10): Shares decrease, Price increases. Used to avoid exchange delisting.\n- Dividends (DERP):\n  - Declaration Date: Board declares dividend.\n  - Ex-Dividend Date: The first day the stock trades without the dividend. Set by the exchange (SRO). To receive the dividend, you must buy before the Ex-Date.\n  - Record Date: The date the company checks who owns the stock.\n  - Payable Date: Checks mailed.\n\nProxy Voting: Shareholders can vote on corporate matters remotely via Proxy. Broker-dealers must forward proxy materials to beneficial owners.",
-        questions: [
-            { q: "What is the standard settlement for a trade of Apple stock?", a: "T+1." },
-            { q: "Explain the impact of a 2:1 stock split on an investor's cost basis.", a: "Cost basis per share is halved; number of shares doubles." },
-            { q: "Which date is the first day a stock trades without the dividend attached?", a: "Ex-Dividend Date." },
-            { q: "Who determines the Ex-Dividend Date?", a: "The Exchange (SRO)." },
-            { q: "Why would a company perform a Reverse Stock Split?", a: "To increase share price (often to avoid delisting)." },
-            { q: "What is the settlement for US Treasury Bonds?", a: "T+1." },
-            { q: "Define 'Proxy'.", a: "Absentee ballot for shareholder voting." },
-            { q: "Must an investor own the stock on the Record Date to receive the dividend?", a: "Yes." },
-            { q: "How are cash dividends taxed?", a: "Taxed in the year received (Ordinary or Qualified)." },
-            { q: "What is a 'Tender Offer'?", a: "Offer to buy shares directly from shareholders, usually at a premium." }
-        ]
-    },
-    {
-        day: 17,
-        title: "Customer Accounts (Types & Opening)",
-        section: 3,
-        narrative: "Account Types:\n- Cash Account: Payment in full is required. Mandatory for IRAs and Custodial accounts.\n- Margin Account: Allows borrowing from the broker-dealer. Regulated by the Federal Reserve (Reg T).\n  - Hypothecation Agreement: Pledges securities as collateral for the loan (Mandatory).\n  - Credit Agreement: Details interest terms (Mandatory).\n  - Loan Consent: Allows firm to lend client securities to others (Optional).\n\nAccount Titles:\n- JTWROS (Joint Tenants with Rights of Survivorship): Equal ownership. Upon death, assets pass to the survivor (bypassing probate).\n- TIC (Tenants in Common): Unequal ownership allowed. Upon death, the decedent's share goes to their estate/heirs, not the other tenant.\n- Custodial (UTMA/UGMA): Managed by an adult for a minor. Indefeasible title (assets belong to the minor). One custodian, one minor. No margin allowed.\n\nDiscretionary Accounts: A representative can trade without consulting the client if given Written Power of Attorney.\n- Discretion Defined: Rep chooses the Action (Buy/Sell), Asset (Which stock), or Amount (Quantity).\n- Not Discretion: Rep only chooses Price and Time (Not Held Order).",
-        questions: [
-            { q: "Which document is optional when opening a margin account?", a: "Loan Consent Agreement." },
-            { q: "In a TIC account, where do assets go upon the death of a tenant?", a: "To the decedent's estate." },
-            { q: "What are the three 'A's' of discretion?", a: "Asset, Action, Amount." },
-            { q: "Can a Custodial Account be opened on margin?", a: "No." },
-            { q: "Who is the legal owner of assets in a UTMA account?", a: "The Minor." },
-            { q: "What is a 'Not Held' order?", a: "Rep chooses Price and Time only (not discretionary)." },
-            { q: "Describe the purpose of the Hypothecation Agreement.", a: "Pledges securities as collateral for margin loan." },
-            { q: "Which joint account avoids probate?", a: "JTWROS." },
-            { q: "What constitutes a 'Pattern Day Trader'?", a: "4+ day trades in 5 business days." },
-            { q: "Who must approve a new account opening?", a: "A Principal." }
-        ]
-    },
-    {
-        day: 18,
-        title: "Retirement Plans and Margin Rules",
-        section: 3,
-        narrative: "Retirement Plans:\n- Traditional IRA: Pre-tax contributions (deductible). Tax-deferred growth. Withdrawals taxed as ordinary income. RMDs begin at age 73. 10% penalty for withdrawals before 59½.\n- Roth IRA: After-tax contributions. Tax-free growth and tax-free withdrawals (if qualified). No RMDs. Income limits apply.\n- Qualified Plans (ERISA): 401(k) (Corporate) and 403(b) (Non-profit). Must be non-discriminatory (offered to all eligible employees). Vesting schedules apply.\n- 529 Plans: State-sponsored education savings. After-tax contributions, tax-free withdrawals for education.\n\nMargin Requirements (Reg T):\n- Initial Requirement: Deposit 50% of the purchase price.\n- Minimum Maintenance: Equity must stay above 25% (Long) or 30% (Short).\n- FINRA Minimum: For purchases under $4,000, deposit 100% or $2,000, whichever is less.\n- Restricted: New issues (IPOs) cannot be margined for 30 days.",
-        questions: [
-            { q: "Compare the tax treatment of Traditional vs. Roth IRAs.", a: "Traditional: Tax-deferred. Roth: Tax-free." },
-            { q: "At what age do RMDs begin for a Traditional IRA?", a: "73." },
-            { q: "What is the penalty for an early withdrawal from an IRA?", a: "10% + Ordinary Income Tax." },
-            { q: "Define 'Vesting' in a 401(k).", a: "Process of earning ownership of employer matching contributions." },
-            { q: "A customer buys $3,000 of stock in a new margin account. What is the deposit?", a: "$2,000 (FINRA minimum)." },
-            { q: "What is the Reg T requirement?", a: "50%." },
-            { q: "Can an IPO be purchased on margin immediately?", a: "No (30 day wait)." },
-            { q: "What are the tax benefits of a 529 plan?", a: "Tax-free growth/withdrawals for education." },
-            { q: "Who regulates margin requirements (Reg T)?", a: "Federal Reserve Board." },
-            { q: "Distinguish between Qualified and Non-Qualified plans.", a: "Qualified: Pre-tax/ERISA (401k). Non-Qualified: Post-tax/Discriminatory (Deferred Comp)." }
-        ]
-    },
-    {
-        day: 19,
-        title: "Prohibited Activities I (Market Manipulation)",
-        section: 3,
-        narrative: "The integrity of the market is paramount. The exam tests knowledge of specific manipulative behaviors.\n- Insider Trading: Trading on material, non-public information. Both the Tipper (who shares info) and Tippee (who trades) are liable. Penalties: Civil (3x profits made/losses avoided), Criminal ($5M fine / 20 years).\n- Front Running: A firm trading for its own account ahead of a large customer order to profit from the expected price movement.\n- Pump and Dump: Spreading false rumors to inflate a stock price before selling.\n- Backing Away: A Market Maker failing to honor their published firm quote.\n- Freeriding: Buying securities and then selling them before paying for the purchase. Result: Account frozen for 90 days.\n- Churning: Excessive trading in a customer's account to generate commissions. The key metric is whether the trading aligns with the customer's objectives.",
-        questions: [
-            { q: "What is the civil penalty for Insider Trading?", a: "3x profits made or losses avoided (Treble damages)." },
-            { q: "Define 'Front Running'.", a: "Trading ahead of a customer order." },
-            { q: "Explain the consequence of 'Freeriding'.", a: "Account frozen for 90 days." },
-            { q: "What constitutes 'Churning'?", a: "Excessive trading for commissions." },
-            { q: "Is it a violation to pass inside information if you don't trade on it?", a: "Yes, if the recipient trades (Tipper liability)." },
-            { q: "Define 'Backing Away'.", a: "Failing to honor a firm quote." },
-            { q: "What is 'Marking the Close'?", a: "Trading at market close to manipulate the closing price." },
-            { q: "Who is liable in an Insider Trading case: the Tipper or Tippee?", a: "Both." },
-            { q: "Describe a 'Pump and Dump' scheme.", a: "Hype rumors -> Price up -> Sell." },
-            { q: "What is 'Interpositioning'?", a: "Adding a third party to a trade unnecessarily, increasing costs." }
-        ]
-    },
-    {
-        day: 20,
-        title: "Prohibited Activities II (Ethics & Conduct)",
-        section: 3,
-        narrative: "Gifts and Gratuities: FINRA members cannot give gifts exceeding $100 per person per year to employees of other firms if the gift is business-related.\nExceptions: Personal gifts (e.g., wedding) and Business Entertainment (meals, tickets) where the rep attends. Entertainment is not subject to the $100 limit but must be reasonable.\n\nBorrowing and Lending: Generally prohibited with customers.\n- Allowed without notice: Immediate family or if the customer is a bank.\n- Allowed with permission: Customer is a registered person at the same firm.\n\nExploitation of Seniors: For clients 65+ or vulnerable adults:\n- Trusted Contact: Firms must attempt to obtain the name of a trusted contact person.\n- Temporary Hold: Firms can place a hold on disbursements (not trades) for 15 days if financial exploitation is suspected.",
-        questions: [
-            { q: "What is the dollar limit for business-related gifts?", a: "$100." },
-            { q: "Does a business dinner count toward the $100 gift limit?", a: "No (Entertainment)." },
-            { q: "Under what condition can a rep borrow money from a customer?", a: "Immediate family or lending institution." },
-            { q: "What action can a firm take if it suspects financial exploitation of a senior?", a: "Place a temporary hold on disbursements." },
-            { q: "Is a 'Trusted Contact' mandatory for opening a senior account?", a: "No (Firm must attempt to obtain)." },
-            { q: "Can a rep share in the profits/losses of a customer account?", a: "Only with permission and in proportion to capital contributed." },
-            { q: "What are the rules regarding 'Selling Away'?", a: "Must notify firm (and get permission if compensated)." },
-            { q: "Define 'Guarantees against loss'.", a: "Prohibited practice of promising a client they won't lose money." },
-            { q: "How long can a temporary hold on disbursements last?", a: "15 days." },
-            { q: "Are personal gifts (e.g., for a birth) subject to the gift rule?", a: "Generally No." }
-        ]
-    },
-    {
-        day: 21,
-        title: "Cumulative Test 3 (Trading & Ethics)",
-        section: 3,
-        narrative: "Scope: Days 15-20. 30 Questions.",
-        questions: [
-            { q: "A customer places a 'Sell Stop' at 40. The market trades at 39. What happens?", a: "Order is triggered and becomes a Market Order." },
-            { q: "When does a corporate bond trade settle?", a: "T+1." },
-            { q: "Identify the prohibited practice of trading ahead of a client's block order.", a: "Front Running." },
-            { q: "What document allows a firm to lend a customer's securities?", a: "Loan Consent Agreement." },
-            { q: "Calculate the deposit required for a $2,500 purchase in a new margin account.", a: "$2,000." },
-            { q: "Who is the beneficial owner of a custodial account?", a: "The Minor." },
-            { q: "Is a rep permitted to reimburse a client for a loss?", a: "No." },
-            { q: "What is the penalty for Freeriding?", a: "90-day freeze." },
-            { q: "Define the Record Date.", a: "Date ownership is determined for dividend." },
-            { q: "Which order type is used to buy stock at a specific price or lower?", a: "Buy Limit." }
-        ]
-    },
-
-    // --- PART IV: REGULATORY FRAMEWORK (Days 22-23) ---
-    {
-        day: 22,
-        title: "Registration and Continuing Education",
-        section: 4,
-        narrative: "Registration (Form U4): All associated persons must file Form U4. It requires a 10-year employment history and 5-year residency history.\nDisclosures: Any felony conviction (ever) or securities-related misdemeanor (last 10 years) results in Statutory Disqualification (SD).\nArbitration: The U4 contains a pre-dispute arbitration clause, waiving the right to sue in civil court.\n\nTermination (Form U5): Must be filed by the firm within 30 days of termination. The rep has 2 years to re-associate with another firm before their exams expire.\n\nContinuing Education (CE):\n- Regulatory Element: Administered by FINRA. Must be completed annually by December 31st for all registered persons. Failure to complete results in \"CE Inactive\" status (cannot work/get paid).\n- Firm Element: Administered by the firm annually. Covers products and sales practices.",
-        questions: [
-            { q: "How long does a rep have to rejoin the industry before retaking exams?", a: "2 Years." },
-            { q: "What constitutes a Statutory Disqualification?", a: "Felony (10 yrs) or Securities Misdemeanor." },
-            { q: "How often is Regulatory Element CE required?", a: "Annually." },
-            { q: "What form is filed upon termination?", a: "Form U5." },
-            { q: "Does Form U4 require disclosure of a bankruptcy filing?", a: "Yes (Financial disclosure)." },
-            { q: "What happens if a rep becomes 'CE Inactive'?", a: "Cannot perform registered duties or receive comp." },
-            { q: "Who administers the Firm Element CE?", a: "The Broker-Dealer (Firm)." },
-            { q: "What is the filing deadline for Form U5?", a: "30 days." },
-            { q: "Can a rep sue their employer in civil court?", a: "Generally No (Arbitration)." },
-            { q: "Explain the fingerprinting requirement.", a: "Required for all associated persons involved in sales/handling cash/securities." }
-        ]
-    },
-    {
-        day: 23,
-        title: "Reportable Events and Supervision",
-        section: 4,
-        narrative: "Customer Complaints: Must be Written to be valid. All complaints must be reported to a supervisor. Records must be kept for 4 years.\n\nOutside Business Activities (OBA): Registered persons must provide Written Notice to their firm before engaging in any outside employment (e.g., driving Uber, serving on a board). Firm permission is generally not required by FINRA, but notice is mandatory.\n\nPrivate Securities Transactions (Selling Away): Selling securities not offered by the firm.\n- With Compensation: Requires Written Permission from the firm.\n- Without Compensation: Requires Written Notice.\n\nPolitical Contributions (MSRB G-37): \"Pay to Play\" rules. Municipal Finance Professionals (MFPs) are limited to contributing $250 per election to candidates they can vote for. Violation triggers a 2-year ban on negotiated underwriting business with that municipality.",
-        questions: [
-            { q: "Does a verbal complaint require formal reporting?", a: "No (Must be written)." },
-            { q: "What is required for a rep to engage in an OBA?", a: "Written Notice." },
-            { q: "Define 'Selling Away'.", a: "Private Securities Transactions." },
-            { q: "What is the MSRB political contribution limit?", a: "$250 per election (if eligible to vote)." },
-            { q: "How long must complaint records be retained?", a: "4 years." },
-            { q: "If a rep sells a private placement for compensation, what is required?", a: "Written Permission." },
-            { q: "What happens if a firm violates the Pay to Play rule?", a: "2-year ban on negotiated underwriting." },
-            { q: "Who is considered an MFP?", a: "Municipal Finance Professional." },
-            { q: "Are charitable contributions restricted by G-37?", a: "No." },
-            { q: "Does a rep need permission to volunteer for a charity?", a: "Generally No (unless compensated/investment related)." }
-        ]
-    },
-
-    // --- PART V: COMPREHENSIVE REVIEW (Days 24-28) ---
-    {
-        day: 24,
-        title: "Capital Markets & Regulations Review",
-        section: 1,
-        narrative: "Activity: Re-read summaries for Days 1-6 and 22-23.\nFocus Drill: Create a table comparing the Securities Act of 1933 (Primary Market) vs. the Act of 1934 (Secondary Market/People).",
-        questions: [
-            { q: "Distinguish between the role of the SEC and FINRA.", a: "SEC: Federal Agency/Ultimate authority. FINRA: SRO/Regulates member firms." }
-        ]
-    },
-    {
-        day: 25,
-        title: "Products & Risks Deep Dive",
-        section: 2,
-        narrative: "Activity: Review Days 8-13.\nFocus Drill: Draw the Options Matrix (Max Gain/Loss for all 4 positions) until memorized.",
-        questions: [
-            { q: "Explain the relationship between Bond Prices and Interest Rates.", a: "Inverse Relationship." }
-        ]
-    },
-    {
-        day: 26,
-        title: "Trading & Accounts Review",
-        section: 3,
-        narrative: "Activity: Review Days 15-20.\nFocus Drill: List all Order Types (Market, Limit, Stop) and their triggers.",
-        questions: [
-            { q: "Explain the T+1 settlement timeline.", a: "Trade Date + 1 Business Day." }
-        ]
-    },
-    {
-        day: 27,
-        title: "Full Mock Exam 1",
-        section: 5,
-        narrative: "Task: Complete a 75-question timed mock exam (1hr 45min).\nAnalysis: Review all incorrect answers. If score < 70%, re-read the relevant daily module.",
-        questions: [
-            { q: "Mock Exam Complete?", a: "Yes" }
-        ]
-    },
-    {
-        day: 28,
-        title: "Final Exam Simulation",
-        section: 5,
-        narrative: "Task: Complete Final 75-question simulated exam.\nStrategy: Practice pacing. Ensure you read every \"EXCEPT\" and \"NOT\" in the question stem.",
-        questions: [
-            { q: "Under Rule 144, how much control stock can an affiliate sell in 90 days?", a: "Greater of 1% of outstanding or avg weekly volume." },
-            { q: "Which yield is highest for a discount bond?", a: "Yield to Maturity." },
-            { q: "A 529 plan offers what tax advantage?", a: "Tax-free withdrawals for education." },
-            { q: "What is the penalty for 'Freeriding'?", a: "90-day freeze." },
-            { q: "Which SRO regulates the municipal bond market?", a: "MSRB." }
-        ]
-    }
-];
-
-// App Logic
-const AppState = {
-    key: 'sie_app_v2',
-    data: {
-        completedDays: [], // array of day numbers
-        theme: 'light'
-    },
-    load() {
-        const stored = localStorage.getItem(this.key);
-        if (stored) {
-            this.data = JSON.parse(stored);
-            if(!this.data.completedDays) this.data.completedDays = [];
-        }
-        this.applyTheme();
-    },
-    save() {
-        localStorage.setItem(this.key, JSON.stringify(this.data));
-        updateDashboard();
-    },
-    toggleDay(dayNum) {
-        const index = this.data.completedDays.indexOf(dayNum);
-        if (index === -1) {
-            this.data.completedDays.push(dayNum);
-        } else {
-            this.data.completedDays.splice(index, 1);
-        }
-        this.save();
-    },
-    applyTheme() {
-        if (this.data.theme === 'dark') {
-            document.body.classList.add('dark-mode');
-        } else {
-            document.body.classList.remove('dark-mode');
-        }
-    }
-};
-
-// Dashboard Logic
-function updateDashboard() {
-    const weights = { 1: 0.16, 2: 0.44, 3: 0.31, 4: 0.09 };
-    // Count total days in each section
-    const sectionCounts = { 1: 0, 2: 0, 3: 0, 4: 0 };
-    COURSE_DATA.forEach(d => {
-        if (d.section >= 1 && d.section <= 4) sectionCounts[d.section]++;
-    });
-
-    // Count completed days in each section
-    const completedCounts = { 1: 0, 2: 0, 3: 0, 4: 0 };
-    COURSE_DATA.forEach(d => {
-        if (AppState.data.completedDays.includes(d.day) && d.section <= 4) {
-            completedCounts[d.section]++;
-        }
-    });
-
-    // Per Section Scores
-    for (let i = 1; i <= 4; i++) {
-        const rawPct = sectionCounts[i] === 0 ? 0 : (completedCounts[i] / sectionCounts[i]);
-        // Update UI for section breakdown
-        document.getElementById(`s${i}-score`).innerText = `${Math.round(rawPct * 100)}%`;
-    }
-
-    // Overall Completion (Simple Count of 28 Days)
-    const totalCompleted = AppState.data.completedDays.length;
-    const totalDays = COURSE_DATA.length;
-    const overallPct = (totalCompleted / totalDays) * 100;
-    
-    document.getElementById('overall-score').innerText = `${Math.round(overallPct)}%`;
-}
-
-// Render Feed
-function renderFeed() {
-    const container = document.getElementById('feed');
-    container.innerHTML = '';
-    
-    COURSE_DATA.forEach(day => {
-        const isChecked = AppState.data.completedDays.includes(day.day) ? 'checked' : '';
-        
-        const card = document.createElement('div');
-        card.className = 'day-card';
-        card.innerHTML = `
-            <div class="day-header">
-                <span style="font-weight:800; color:var(--primary);">Day ${day.day}</span>
-                <span class="day-tag">${day.section === 5 ? 'Review/Mock' : 'Section ' + day.section}</span>
-            </div>
-            <div class="day-content">
-                <h2>${day.title}</h2>
-                <div class="narrative">${day.narrative}</div>
-            </div>
-            <div class="day-footer">
-                <div class="check-container ${isChecked}" onclick="toggleCheck(this, ${day.day})">
-                    <span style="margin-right:8px; font-weight:600; color:var(--text-muted)">Complete</span>
-                    <div class="check-box"></div>
+        <!-- Quiz View -->
+        <div id="view-quiz" class="view">
+            <div class="quiz-container">
+                <div class="flex-row" style="margin-top: 0; margin-bottom: 1rem;">
+                    <span id="quizProgress">Question 1/10</span>
+                    <span id="quizScore">Score: 0</span>
                 </div>
+                <div id="questionContainer">
+                    <div class="question-text" id="qText"></div>
+                    <ul class="options-list" id="qOptions"></ul>
+                </div>
+                <div id="feedbackArea" class="feedback">
+                    <strong>Explanation:</strong> <span id="explanationText"></span>
+                </div>
+                <button id="nextBtn" class="btn btn-primary btn-full hidden" onclick="app.quiz.next()">Next Question</button>
+                <button id="submitBtn" class="btn btn-primary btn-full" onclick="app.quiz.submitAnswer()">Submit Answer</button>
             </div>
-        `;
-        container.appendChild(card);
-    });
-}
+        </div>
 
-function toggleCheck(el, day) {
-    el.classList.toggle('checked');
-    AppState.toggleDay(day);
-}
+        <!-- Results View -->
+        <div id="view-results" class="view">
+             <div class="modal-content" style="margin: 0 auto;">
+                <h2 id="resultTitle">Assessment Complete</h2>
+                <div style="font-size: 3rem; font-weight: 800; margin: 1rem 0;" id="resultScore">80%</div>
+                <p id="resultMessage">Great job! You've unlocked the next day.</p>
+                <button class="btn btn-primary btn-full" onclick="app.router.go('dashboard')">Return to Dashboard</button>
+             </div>
+        </div>
+    </main>
 
-// Theme Logic
-function toggleTheme() {
-    AppState.data.theme = AppState.data.theme === 'light' ? 'dark' : 'light';
-    AppState.save(); // save pref
-    AppState.applyTheme();
-}
+    <script>
+        // --- 1. DATA LAYER & CURRICULUM ---
+        // Simulating the 28-Day Plan structure
+        const CURRICULUM = [
+            {
+                id: 1,
+                title: "Equity Securities",
+                domain: "Capital Markets", // 16% Weight
+                desc: "Common stock, preferred stock, rights, warrants, and ADRs.",
+                content: `
+                    <h2>Day 1: Equity Basics</h2>
+                    <p>Welcome to Day 1. Today focuses on ownership in corporations. The SIE weighs 'Capital Markets' at 16%.</p>
+                    <h3>1. Common Stock</h3>
+                    <p>Represents ultimate ownership. Holders have voting rights (statutory vs cumulative) and rights to dividends if declared.</p>
+                    <h3>2. Preferred Stock</h3>
+                    <p>Senior to common stock in liquidation. Fixed dividend rate. Sensitive to interest rates (inverse relationship).</p>
+                    <h3>3. ADRs (American Depositary Receipts)</h3>
+                    <p>Facilitate US trading of foreign stock. Subject to currency risk.</p>
+                `,
+                questions: [
+                    {
+                        text: "Which of the following represents the most junior security in a corporate liquidation?",
+                        options: ["Preferred Stock", "Debentures", "Common Stock", "Mortgage Bonds"],
+                        correct: 2,
+                        explanation: "Common stockholders are the last to be paid in the event of corporate bankruptcy (residual claim)."
+                    },
+                    {
+                        text: "An investor holding an ADR is primarily exposed to which specific risk?",
+                        options: ["Political Risk", "Currency Risk", "Interest Rate Risk", "Call Risk"],
+                        correct: 1,
+                        explanation: "ADRs represent foreign stock. If the foreign currency weakens against the USD, the ADR value drops."
+                    },
+                    {
+                        text: "Which type of voting allows a shareholder to cast all votes for a single board seat?",
+                        options: ["Statutory Voting", "Cumulative Voting", "Proxy Voting", "Block Voting"],
+                        correct: 1,
+                        explanation: "Cumulative voting benefits smaller shareholders by allowing them to pool votes for one candidate."
+                    }
+                ]
+            },
+            {
+                id: 2,
+                title: "Debt Instruments",
+                domain: "Capital Markets",
+                desc: "Bonds, yields, maturities, and credit ratings.",
+                content: `
+                    <h2>Day 2: The Bond Market</h2>
+                    <p>Bonds are debt obligations. The borrower (issuer) pays interest (coupon) to the lender (investor).</p>
+                    <h3>Key Relationships</h3>
+                    <ul>
+                        <li><strong>Price vs. Yield:</strong> Inverse relationship. As interest rates rise, bond prices fall.</li>
+                        <li><strong>Duration:</strong> Measures sensitivity to interest rate changes. Long-term, low-coupon bonds are most volatile.</li>
+                    </ul>
+                `,
+                questions: [
+                    {
+                        text: "If market interest rates rise, what happens to the market price of existing bonds?",
+                        options: ["They increase", "They decrease", "They remain unchanged", "They fluctuate randomly"],
+                        correct: 1,
+                        explanation: "Bond prices and interest rates have an inverse relationship."
+                    },
+                    {
+                        text: "Which bond has the highest interest rate risk?",
+                        options: ["Short-term Treasury Bill", "10-year Corporate Bond", "30-year Zero-Coupon Bond", "5-year Municipal Bond"],
+                        correct: 2,
+                        explanation: "Longer maturity and lower coupon (zero) result in the highest duration and volatility."
+                    }
+                ]
+            },
+            // Generative placeholders for Days 3-28 to simulate full app structure
+            ...Array.from({ length: 26 }, (_, i) => ({
+                id: i + 3,
+                title: `Day ${i + 3} Module`,
+                domain: i < 5 ? "Capital Markets" : i < 15 ? "Products & Risks" : "Trading & Accounts",
+                desc: "Advanced topics, regulation, and account types.",
+                content: `<h2>Day ${i + 3}: Advanced Concepts</h2><p>This is placeholder content for Day ${i + 3} logic testing.</p>`,
+                questions: [
+                    {
+                        text: `Sample Question for Day ${i + 3}?`,
+                        options: ["Option A", "Option B", "Option C", "Option D"],
+                        correct: 0,
+                        explanation: "This is a placeholder explanation."
+                    }
+                ]
+            }))
+        ];
 
-// Flashcard Logic
-let fcIndex = 0;
-let fcList = [];
-let isFlipped = false;
+        // --- 2. STORAGE MANAGER ---
+        class StorageManager {
+            constructor() {
+                this.KEY = 'sie_prep_data_v1';
+                this.state = this.load();
+            }
 
-function buildFlashcardList() {
-    fcList = [];
-    COURSE_DATA.forEach(day => {
-        if(day.questions) {
-            day.questions.forEach(q => fcList.push(q));
+            load() {
+                const data = localStorage.getItem(this.KEY);
+                if (data) return JSON.parse(data);
+                
+                // Default State
+                return {
+                    currentDay: 1,
+                    unlockedDays: [1], // Array of day IDs
+                    scores: {}, // { 1: 80, 2: 100 }
+                    flaggedQuestions: [] // For review logic
+                };
+            }
+
+            save() {
+                localStorage.setItem(this.KEY, JSON.stringify(this.state));
+            }
+
+            unlockDay(dayId) {
+                if (!this.state.unlockedDays.includes(dayId)) {
+                    this.state.unlockedDays.push(dayId);
+                    // Update current day pointer if strictly linear
+                    if(dayId > this.state.currentDay) this.state.currentDay = dayId;
+                    this.save();
+                }
+            }
+
+            recordScore(dayId, percentage) {
+                // Keep highest score
+                const existing = this.state.scores[dayId] || 0;
+                this.state.scores[dayId] = Math.max(existing, percentage);
+                this.save();
+            }
+
+            reset() {
+                localStorage.removeItem(this.KEY);
+                location.reload();
+            }
         }
-    });
-    // Shuffle
-    fcList.sort(() => Math.random() - 0.5);
-}
 
-function toggleFlashcards() {
-    const modal = document.getElementById('flashcard-modal');
-    const isActive = modal.classList.contains('active');
-    
-    if (!isActive) {
-        buildFlashcardList();
-        fcIndex = 0;
-        showCard();
-        modal.classList.add('active');
-        document.addEventListener('keydown', handleFcKey);
-    } else {
-        modal.classList.remove('active');
-        document.removeEventListener('keydown', handleFcKey);
-    }
-}
+        // --- 3. QUIZ ENGINE ---
+        class QuizEngine {
+            constructor(app) {
+                this.app = app;
+                this.activeQuestions = [];
+                this.currentIndex = 0;
+                this.score = 0;
+                this.currentDayId = null;
+            }
 
-function showCard() {
-    isFlipped = false;
-    const card = document.getElementById('active-card');
-    card.classList.remove('flipped');
-    
-    // Tiny timeout to update text so user doesn't see swap
-    setTimeout(() => {
-        const q = fcList[fcIndex];
-        document.getElementById('fc-front').innerText = q.q;
-        document.getElementById('fc-back').innerText = q.a;
-    }, 200);
-}
+            start() {
+                const dayId = this.app.router.params.dayId;
+                const dayData = CURRICULUM.find(d => d.id === parseInt(dayId));
+                
+                if (!dayData) return;
 
-function flipCard() {
-    const card = document.getElementById('active-card');
-    isFlipped = !isFlipped;
-    if(isFlipped) card.classList.add('flipped');
-    else card.classList.remove('flipped');
-}
+                this.currentDayId = dayData.id;
+                this.activeQuestions = [...dayData.questions]; // Clone array
+                this.currentIndex = 0;
+                this.score = 0;
 
-function nextCard() {
-    if (fcIndex < fcList.length - 1) {
-        fcIndex++;
-        showCard();
-    } else {
-        alert("You've gone through all loaded cards! Reshuffling...");
-        buildFlashcardList();
-        fcIndex = 0;
-        showCard();
-    }
-}
+                this.app.router.go('quiz');
+                this.renderQuestion();
+                this.updateStats();
+            }
 
-function prevCard() {
-    if (fcIndex > 0) {
-        fcIndex--;
-        showCard();
-    }
-}
+            renderQuestion() {
+                const q = this.activeQuestions[this.currentIndex];
+                const container = document.getElementById('questionContainer');
+                const nextBtn = document.getElementById('nextBtn');
+                const submitBtn = document.getElementById('submitBtn');
+                const feedback = document.getElementById('feedbackArea');
 
-function handleFcKey(e) {
-    if(e.code === 'Space') {
-        e.preventDefault(); // stop scrolling
-        flipCard();
-    }
-    if(e.code === 'ArrowRight') nextCard();
-    if(e.code === 'ArrowLeft') prevCard();
-}
+                // Reset UI
+                nextBtn.classList.add('hidden');
+                submitBtn.classList.remove('hidden');
+                submitBtn.disabled = true; // Disable until selection
+                feedback.classList.remove('show');
+                
+                document.getElementById('qText').textContent = q.text;
+                const ul = document.getElementById('qOptions');
+                ul.innerHTML = '';
 
-// Init
-window.addEventListener('DOMContentLoaded', () => {
-    AppState.load();
-    renderFeed();
-    updateDashboard();
-});
+                q.options.forEach((opt, idx) => {
+                    const li = document.createElement('li');
+                    li.className = 'option-item';
+                    li.textContent = opt;
+                    li.dataset.index = idx;
+                    li.onclick = () => this.selectOption(idx);
+                    ul.appendChild(li);
+                });
+            }
 
-</script>
+            selectOption(idx) {
+                if(document.getElementById('submitBtn').classList.contains('hidden')) return; // Prevent change after submit
+
+                const options = document.querySelectorAll('.option-item');
+                options.forEach(o => o.classList.remove('selected'));
+                options[idx].classList.add('selected');
+                document.getElementById('submitBtn').disabled = false;
+            }
+
+            submitAnswer() {
+                const selected = document.querySelector('.option-item.selected');
+                if (!selected) return;
+
+                const selectedIdx = parseInt(selected.dataset.index);
+                const q = this.activeQuestions[this.currentIndex];
+                const options = document.querySelectorAll('.option-item');
+
+                // Visual Feedback
+                if (selectedIdx === q.correct) {
+                    selected.classList.add('correct');
+                    this.score++;
+                } else {
+                    selected.classList.add('incorrect');
+                    options[q.correct].classList.add('correct');
+                    // Add to spaced repetition queue logic here
+                }
+
+                // Show Explanation
+                document.getElementById('explanationText').textContent = q.explanation;
+                document.getElementById('feedbackArea').classList.add('show');
+
+                // Toggle Buttons
+                document.getElementById('submitBtn').classList.add('hidden');
+                document.getElementById('nextBtn').classList.remove('hidden');
+            }
+
+            next() {
+                this.currentIndex++;
+                if (this.currentIndex < this.activeQuestions.length) {
+                    this.renderQuestion();
+                    this.updateStats();
+                } else {
+                    this.finish();
+                }
+            }
+
+            updateStats() {
+                document.getElementById('quizProgress').textContent = `Question ${this.currentIndex + 1}/${this.activeQuestions.length}`;
+                document.getElementById('quizScore').textContent = `Score: ${this.score}`;
+            }
+
+            finish() {
+                const percentage = Math.round((this.score / this.activeQuestions.length) * 100);
+                const passed = percentage >= 70; // 70% passing threshold
+                
+                // Update Data
+                this.app.data.recordScore(this.currentDayId, percentage);
+                
+                const title = document.getElementById('resultTitle');
+                const msg = document.getElementById('resultMessage');
+                const scoreDisplay = document.getElementById('resultScore');
+
+                scoreDisplay.textContent = `${percentage}%`;
+                
+                if (passed) {
+                    title.textContent = "Day Complete!";
+                    title.style.color = "var(--success)";
+                    msg.textContent = "You've mastered this section. The next day is now unlocked.";
+                    // Unlock next day
+                    if (this.currentDayId < 28) {
+                        this.app.data.unlockDay(this.currentDayId + 1);
+                    }
+                } else {
+                    title.textContent = "Review Needed";
+                    title.style.color = "var(--danger)";
+                    msg.textContent = "You need 70% to proceed. Review the material and try again.";
+                }
+
+                this.app.router.go('results');
+            }
+        }
+
+        // --- 4. ROUTER & UI CONTROLLER ---
+        class Router {
+            constructor() {
+                this.views = document.querySelectorAll('.view');
+                this.params = {};
+            }
+
+            go(viewId, params = {}) {
+                this.params = params;
+                
+                // Hide all
+                this.views.forEach(v => v.classList.remove('active'));
+                
+                // Show target
+                const target = document.getElementById(`view-${viewId}`);
+                if (target) {
+                    target.classList.add('active');
+                    window.scrollTo(0,0);
+                    
+                    // Trigger hooks
+                    if(viewId === 'dashboard') app.renderDashboard();
+                    if(viewId === 'lesson') app.renderLesson();
+                }
+            }
+        }
+
+        // --- 5. MAIN APP ---
+        class App {
+            constructor() {
+                this.data = new StorageManager();
+                this.router = new Router();
+                this.quiz = new QuizEngine(this);
+                
+                this.init();
+            }
+
+            init() {
+                this.renderDashboard();
+                this.updateGlobalProgress();
+            }
+
+            updateGlobalProgress() {
+                const completed = Object.keys(this.data.state.scores).length;
+                document.getElementById('globalProgress').textContent = `Progress: ${completed} / 28 Days`;
+            }
+
+            renderDashboard() {
+                const grid = document.getElementById('dayGrid');
+                grid.innerHTML = '';
+                this.updateGlobalProgress();
+
+                CURRICULUM.forEach(day => {
+                    const isUnlocked = this.data.state.unlockedDays.includes(day.id);
+                    const score = this.data.state.scores[day.id];
+                    const isCompleted = score >= 70;
+                    
+                    const card = document.createElement('div');
+                    card.className = `day-card ${isUnlocked ? '' : 'locked'} ${isCompleted ? 'completed' : ''}`;
+                    
+                    // Domain color coding
+                    let badgeClass = 'badge-1';
+                    if(day.domain.includes('Products')) badgeClass = 'badge-2';
+                    if(day.domain.includes('Trading')) badgeClass = 'badge-3';
+                    
+                    card.innerHTML = `
+                        <div>
+                            <span class="day-num">Day ${day.id}</span>
+                            <span class="badge ${badgeClass}" style="float:right; font-size:0.6rem;">${day.domain.split(' ')[0]}</span>
+                            <div class="day-title">${day.title}</div>
+                            <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">${day.desc}</div>
+                        </div>
+                        <div class="day-status">
+                            ${isCompleted 
+                                ? `<span class="text-success">✔ Score: ${score}%</span>` 
+                                : isUnlocked 
+                                    ? `<span style="color:var(--primary)">Start Lesson →</span>` 
+                                    : `<span class="text-locked">Locked</span>`
+                            }
+                        </div>
+                    `;
+
+                    if (isUnlocked) {
+                        card.onclick = () => this.router.go('lesson', { dayId: day.id });
+                    }
+
+                    grid.appendChild(card);
+                });
+            }
+
+            renderLesson() {
+                const dayId = this.router.params.dayId;
+                const dayData = CURRICULUM.find(d => d.id === parseInt(dayId));
+                if(dayData) {
+                    document.getElementById('lessonContent').innerHTML = dayData.content;
+                }
+            }
+        }
+
+        // Initialize App
+        const app = new App();
+
+    </script>
 </body>
 </html>
-
-
 
