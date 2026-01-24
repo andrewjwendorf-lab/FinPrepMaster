@@ -3,634 +3,587 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIE Prep: 28-Day Course</title>
+    <title>SIE Mastery Portal | FINRA Certification Prep</title>
     <style>
         :root {
-            --primary: #2563eb;
-            --primary-dark: #1e40af;
+            /* Professional Financial Palette - Light */
+            --bg: #f4f7f9;
+            --surface: #ffffff;
+            --primary: #0052ff; /* Institutional Blue */
+            --text-main: #121d33;
+            --text-muted: #64748b;
+            --border: #e2e8f0;
             --success: #10b981;
-            --warning: #f59e0b;
             --danger: #ef4444;
-            --gray-100: #f3f4f6;
-            --gray-200: #e5e7eb;
-            --gray-800: #1f2937;
-            --white: #ffffff;
-            --font-main: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --warning: #f59e0b;
+            --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        * { box-sizing: border-box; margin: 0; padding: 0; }
+        [data-theme="dark"] {
+            /* Bloomberg Terminal / Dark Mode */
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --primary: #3b82f6;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --card-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+        }
 
+        * { box-sizing: border-box; }
         body {
-            font-family: var(--font-main);
-            background-color: var(--gray-100);
-            color: var(--gray-800);
+            margin: 0;
+            font-family: 'Inter', -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
             line-height: 1.6;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
+            transition: var(--transition);
         }
 
-        /* Header */
+        /* Typography */
+        h1, h2, h3 { margin-top: 0; font-weight: 700; letter-spacing: -0.02em; }
+        p { margin-bottom: 1.25rem; }
+
+        /* Layout */
         header {
-            background-color: var(--white);
-            padding: 1rem;
-            box-shadow: var(--shadow);
+            background: var(--surface);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            z-index: 10;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .brand {
-            font-size: 1.25rem;
-            font-weight: 800;
-            color: var(--primary);
-            text-decoration: none;
-            cursor: pointer;
+        .container {
+            max-width: 1100px;
+            margin: 2rem auto;
+            padding: 0 1.5rem;
         }
 
-        .progress-indicator {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--gray-800);
+        /* Dashboard UI */
+        .dashboard-header {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 3rem;
         }
 
-        /* Main Container */
-        main {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1rem;
-            max-width: 800px;
+        .stat-card {
+            background: var(--surface);
+            padding: 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: var(--card-shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 4px;
             width: 100%;
+            background: var(--primary);
+            opacity: 0.3;
+        }
+
+        .stat-val { font-size: 2.25rem; font-weight: 800; color: var(--primary); margin: 0.5rem 0; }
+        .stat-label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.1em; color: var(--text-muted); font-weight: 600; }
+
+        /* Module Navigation */
+        .module-grid { display: grid; gap: 1rem; }
+        .module-item {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .module-item:not(.locked):hover {
+            transform: translateX(8px);
+            border-color: var(--primary);
+        }
+
+        .module-item.locked {
+            opacity: 0.6;
+            cursor: not-allowed;
+            filter: grayscale(1);
+        }
+
+        .module-meta { flex: 1; }
+        .module-title { font-size: 1.125rem; font-weight: 700; margin-bottom: 0.25rem; }
+        .module-desc { font-size: 0.875rem; color: var(--text-muted); }
+        .module-score { 
+            background: var(--bg);
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 0.875rem;
+            margin-left: 1rem;
+        }
+
+        /* Content View */
+        .view { display: none; animation: fadeIn 0.4s ease; }
+        .view.active { display: block; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .content-body {
+            background: var(--surface);
+            padding: 3rem;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            max-width: 850px;
             margin: 0 auto;
         }
 
-        /* Views */
-        .view { display: none; }
-        .view.active { display: block; animation: fadeIn 0.3s ease; }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .mnemonic-box {
+            background: rgba(0, 82, 255, 0.08);
+            border-left: 4px solid var(--primary);
+            padding: 1.5rem;
+            margin: 2rem 0;
+            border-radius: 0 8px 8px 0;
+            font-style: italic;
         }
 
-        /* Dashboard Grid */
-        .day-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 1rem;
-            margin-top: 1rem;
-        }
-
-        .day-card {
-            background: var(--white);
-            border-radius: 8px;
-            padding: 1rem;
-            box-shadow: var(--shadow);
-            cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s;
-            border: 2px solid transparent;
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 140px;
-        }
-
-        .day-card:hover { transform: translateY(-2px); }
-        
-        .day-card.locked {
-            opacity: 0.6;
-            cursor: not-allowed;
-            background-color: var(--gray-200);
-        }
-
-        .day-card.completed { border-color: var(--success); }
-        .day-card.active { border-color: var(--primary); }
-
-        .day-num { font-size: 0.8rem; color: var(--gray-800); text-transform: uppercase; font-weight: 700; }
-        .day-title { font-size: 1rem; font-weight: 600; margin-top: 0.5rem; line-height: 1.3; }
-        .day-status { font-size: 0.8rem; margin-top: auto; font-weight: 600; }
-        .text-success { color: var(--success); }
-        .text-locked { color: var(--gray-800); }
-
-        /* Lesson View */
-        .lesson-header { margin-bottom: 1.5rem; }
-        .lesson-content { background: var(--white); padding: 2rem; border-radius: 8px; box-shadow: var(--shadow); }
-        .lesson-content h2 { margin-top: 1.5rem; color: var(--primary); }
-        .lesson-content p { margin-bottom: 1rem; }
-        .lesson-content ul { margin-bottom: 1rem; padding-left: 1.5rem; }
-        
-        .btn {
-            display: inline-block;
-            padding: 0.75rem 1.5rem;
-            border-radius: 6px;
-            font-weight: 600;
-            border: none;
-            cursor: pointer;
-            transition: background 0.2s;
+        .bond-visual {
+            background: var(--bg);
+            padding: 2rem;
+            border-radius: 12px;
             text-align: center;
+            margin: 2rem 0;
         }
 
-        .btn-primary { background: var(--primary); color: white; }
-        .btn-primary:hover { background: var(--primary-dark); }
-        .btn-outline { background: transparent; border: 2px solid var(--gray-200); color: var(--gray-800); }
-        .btn-full { width: 100%; margin-top: 1rem; }
-
-        /* Quiz View */
-        .quiz-container { background: var(--white); padding: 2rem; border-radius: 8px; box-shadow: var(--shadow); }
-        .question-text { font-size: 1.2rem; font-weight: 600; margin-bottom: 1.5rem; }
-        
-        .options-list { list-style: none; }
-        .option-item {
-            padding: 1rem;
-            border: 2px solid var(--gray-200);
-            border-radius: 6px;
+        /* Quiz UI */
+        .quiz-container { max-width: 700px; margin: 0 auto; }
+        .option {
+            background: var(--surface);
+            border: 2px solid var(--border);
+            padding: 1.25rem;
+            border-radius: 10px;
             margin-bottom: 0.75rem;
             cursor: pointer;
-            transition: all 0.2s;
+            transition: var(--transition);
+            font-weight: 500;
         }
 
-        .option-item:hover { border-color: var(--primary); background-color: #eff6ff; }
-        .option-item.selected { border-color: var(--primary); background-color: #eff6ff; font-weight: 600; }
-        
-        .option-item.correct { border-color: var(--success); background-color: #d1fae5; }
-        .option-item.incorrect { border-color: var(--danger); background-color: #fee2e2; }
+        .option:hover { border-color: var(--primary); background: rgba(0, 82, 255, 0.03); }
+        .option.selected { border-color: var(--primary); background: rgba(0, 82, 255, 0.08); }
+        .option.correct { border-color: var(--success); background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .option.wrong { border-color: var(--danger); background: rgba(239, 68, 68, 0.1); color: var(--danger); }
 
-        .feedback {
-            margin-top: 1.5rem;
-            padding: 1rem;
-            background-color: var(--gray-100);
-            border-radius: 6px;
-            display: none;
-        }
-
-        .feedback.show { display: block; }
-        
-        /* Modals / Overlays */
-        .modal {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            display: flex; justify-content: center; align-items: center;
-            z-index: 100;
-            display: none;
-        }
-        .modal.open { display: flex; }
-        .modal-content {
-            background: white;
-            padding: 2rem;
+        /* Controls */
+        .btn {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
             border-radius: 8px;
-            max-width: 400px;
-            width: 90%;
-            text-align: center;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 1rem;
+        }
+        .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+        .btn-outline { background: transparent; border: 1px solid var(--border); color: var(--text-main); }
+        .btn-outline:hover { background: var(--border); }
+
+        .footer-nav {
+            margin-top: 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        /* Utility */
-        .hidden { display: none !important; }
-        .flex-row { display: flex; gap: 1rem; justify-content: space-between; margin-top: 2rem; }
-        .badge { padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; font-weight: 700; background: var(--gray-200); }
-        .badge-1 { background: #dbeafe; color: #1e40af; } /* Capital Markets */
-        .badge-2 { background: #fce7f3; color: #9d174d; } /* Products */
-        .badge-3 { background: #dcfce7; color: #166534; } /* Trading */
-        .badge-4 { background: #ffedd5; color: #9a3412; } /* Regulations */
+        /* Progress Bar */
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background: var(--border);
+            border-radius: 4px;
+            margin-top: 1rem;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
 
-        /* Responsive */
-        @media (max-width: 600px) {
-            .lesson-content { padding: 1rem; }
-            .quiz-container { padding: 1rem; }
+        @media (max-width: 768px) {
+            .content-body { padding: 1.5rem; }
+            header { padding: 1rem; }
         }
     </style>
 </head>
 <body>
 
-    <header>
-        <div class="brand" onclick="app.router.go('dashboard')">SIE Prep 28</div>
-        <div class="progress-indicator" id="globalProgress">Day 1 / 28</div>
-    </header>
+<header>
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+        <div style="background: var(--primary); width: 32px; height: 32px; border-radius: 6px;"></div>
+        <span style="font-size: 1.25rem; font-weight: 800; letter-spacing: -0.03em;">SIE <span style="color: var(--primary)">MASTERY</span></span>
+    </div>
+    <div style="display: flex; gap: 0.5rem;">
+        <button class="btn btn-outline" id="theme-toggle" onclick="toggleTheme()">Dark Mode</button>
+        <button class="btn btn-outline" style="color: var(--danger)" onclick="resetProgress()">Reset</button>
+    </div>
+</header>
 
-    <main id="app">
-        <!-- Dashboard View -->
-        <div id="view-dashboard" class="view active">
-            <h1>Your Roadmap</h1>
-            <p>28 Days to SIE Mastery. Unlock each day by passing the daily assessment.</p>
-            <div class="day-grid" id="dayGrid">
-                <!-- Cards injected via JS -->
+<div class="container">
+    <!-- DASHBOARD VIEW -->
+    <div id="view-dashboard" class="view active">
+        <div class="dashboard-header">
+            <div class="stat-card">
+                <div class="stat-label">Exam Readiness</div>
+                <div class="stat-val" id="total-score">0%</div>
+                <div class="stat-label" style="color: var(--text-muted)">Weighted FINRA Basis</div>
             </div>
-            <button class="btn btn-outline" style="margin-top: 2rem;" onclick="app.data.resetProgress()">Reset All Progress (Debug)</button>
+            <div class="stat-card">
+                <div class="stat-label">Curriculum Progress</div>
+                <div class="stat-val" id="progress-text">0/4</div>
+                <div class="progress-track"><div class="progress-fill" id="overall-progress-bar"></div></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Gate Status</div>
+                <div class="stat-val" id="gate-status" style="font-size: 1.25rem; margin-top: 1.2rem;">Unlocked</div>
+                <div class="stat-label">70% Threshold Required</div>
+            </div>
         </div>
 
-        <!-- Lesson View -->
-        <div id="view-lesson" class="view">
-            <div class="lesson-header">
-                <button class="btn btn-outline" onclick="app.router.go('dashboard')">← Back to Map</button>
-            </div>
-            <div id="lessonContent" class="lesson-content">
-                <!-- Content injected via JS -->
-            </div>
-            <button class="btn btn-primary btn-full" onclick="app.quiz.start()">Start Daily Assessment</button>
+        <h2 style="margin-bottom: 1.5rem">Certification Modules</h2>
+        <div class="module-grid" id="module-list">
+            <!-- Injected by JavaScript -->
         </div>
+    </div>
 
-        <!-- Quiz View -->
-        <div id="view-quiz" class="view">
-            <div class="quiz-container">
-                <div class="flex-row" style="margin-top: 0; margin-bottom: 1rem;">
-                    <span id="quizProgress">Question 1/10</span>
-                    <span id="quizScore">Score: 0</span>
+    <!-- CONTENT VIEW -->
+    <div id="view-content" class="view">
+        <button class="btn btn-outline" onclick="showView('dashboard')" style="margin-bottom: 2rem">← Dashboard</button>
+        <div class="content-body" id="content-area">
+            <!-- Injected by JavaScript -->
+        </div>
+        <div class="footer-nav">
+            <div class="stat-label">Module Study Phase</div>
+            <button class="btn" onclick="startQuiz()">Begin Mastery Quiz</button>
+        </div>
+    </div>
+
+    <!-- QUIZ VIEW -->
+    <div id="view-quiz" class="view">
+        <div class="quiz-container">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem">
+                <h3 id="quiz-title" style="margin:0">Module Quiz</h3>
+                <div id="quiz-progress-text" class="stat-label">Question 1 of 5</div>
+            </div>
+            <div id="quiz-area">
+                <h2 id="question-text" style="margin-bottom: 2rem">Question Loading...</h2>
+                <div id="options-area"></div>
+            </div>
+            <div id="quiz-feedback" style="margin-top: 2rem; display: none;">
+                <div class="mnemonic-box" id="explanation-text"></div>
+                <button class="btn" style="width: 100%" id="next-btn" onclick="handleNext()">Next Question</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    /* --- DATA ENGINE --- */
+    const MODULES = [
+        {
+            id: 0,
+            title: "I. Knowledge of Capital Markets",
+            weight: 0.16,
+            description: "Market Participants, Economic Indicators & Fed Policy",
+            content: `
+                <h2>1.1 The Ecosystem</h2>
+                <p>The SIE exam requires a nuanced understanding of the regulatory hierarchy. At the top sits the <b>SEC</b> (federal level), followed by <b>SROs</b> like FINRA and the MSRB.</p>
+                <div class="mnemonic-box">
+                    <b>ABC Mnemonic:</b><br>
+                    <b>A</b>gency = <b>B</b>roker = <b>C</b>ommission (The firm acts as a middleman).<br>
+                    <b>D</b>ealer = <b>P</b>rincipal = <b>M</b>arkup (The firm trades from its own inventory).
                 </div>
-                <div id="questionContainer">
-                    <div class="question-text" id="qText"></div>
-                    <ul class="options-list" id="qOptions"></ul>
+                <h2>1.2 Economic Indicators & Policy</h2>
+                <p>Candidates must distinguish between <b>Monetary Policy</b> (Federal Reserve - Money Supply) and <b>Fiscal Policy</b> (Congress/President - Taxing/Spending).</p>
+                <ul>
+                    <li><b>Leading Indicators:</b> S&P 500, Housing Permits, Durable Goods.</li>
+                    <li><b>Coincident Indicators:</b> GDP, Personal Income, Industrial Production.</li>
+                    <li><b>Lagging Indicators:</b> CPI (Inflation), Unemployment Duration, Corporate Profits.</li>
+                </ul>
+                <div class="mnemonic-box">
+                    <b>Fed Tools (DORM):</b><br>
+                    <b>D</b>iscount Rate, <b>O</b>pen Market Operations, <b>R</b>eserve Requirements, <b>M</b>argin (Reg T).
                 </div>
-                <div id="feedbackArea" class="feedback">
-                    <strong>Explanation:</strong> <span id="explanationText"></span>
+            `,
+            quiz: [
+                { q: "Which body has the power to bring civil actions but lacks criminal authority?", options: ["FINRA", "SEC", "Department of Justice", "MSRB"], a: 1, exp: "The SEC is the primary federal regulator. It can bring civil suits but refers criminal matters to the DOJ." },
+                { q: "A firm trades a security from its own inventory and charges a markup. It acted as a:", options: ["Agent", "Broker", "Principal", "Custodian"], a: 2, exp: "Dealers act as Principals and earn markups/markdowns." },
+                { q: "Which indicator is considered 'predictive' of the business cycle?", options: ["GDP", "CPI", "S&P 500 Index", "Corporate Profits"], a: 2, exp: "The stock market (S&P 500) is a leading indicator." },
+                { q: "The Federal Reserve's most frequently used tool is:", options: ["Discount Rate", "Reserve Requirements", "Open Market Operations", "Fiscal Spending"], a: 2, exp: "OMO (buying/selling Treasuries) is the most flexible and used tool." },
+                { q: "What happens to the money supply when the Fed sells Treasury securities?", options: ["Increases", "Decreases", "Stays neutral", "Eliminates inflation"], a: 1, exp: "Selling bonds pulls cash out of the banking system (Tightening)." }
+            ]
+        },
+        {
+            id: 1,
+            title: "II. Understanding Products & Their Risks",
+            weight: 0.44,
+            description: "Equity, Debt, Options, and Packaged Products",
+            content: `
+                <h2>2.1 Bond Math & The See-Saw</h2>
+                <p>The inverse relationship between price and interest rates is the most tested concept in Unit II.</p>
+                <div class="bond-visual">
+                    <div style="font-weight: 800; color: var(--primary)">RATES UP ↑ = PRICES DOWN ↓</div>
+                    <div style="font-weight: 800; color: var(--primary)">RATES DOWN ↓ = PRICES UP ↑</div>
                 </div>
-                <button id="nextBtn" class="btn btn-primary btn-full hidden" onclick="app.quiz.next()">Next Question</button>
-                <button id="submitBtn" class="btn btn-primary btn-full" onclick="app.quiz.submitAnswer()">Submit Answer</button>
-            </div>
-        </div>
+                <h2>2.2 Options Basics</h2>
+                <div class="mnemonic-box">
+                    <b>Call Up, Put Down:</b><br>
+                    <b>Call Buyers</b> want the price to go UP (Bullish).<br>
+                    <b>Put Buyers</b> want the price to go DOWN (Bearish).
+                </div>
+                <h2>2.3 Investment Risks</h2>
+                <ul>
+                    <li><b>Systematic Risk:</b> Market-wide (War, Inflation). Cannot be diversified.</li>
+                    <li><b>Non-Systematic Risk:</b> Specific company/industry. Solved via <b>Diversification</b>.</li>
+                </ul>
+            `,
+            quiz: [
+                { q: "An investor owns a bond with a 6% coupon trading at $1,100. Which yield is the lowest?", options: ["Nominal Yield", "Current Yield", "Yield to Maturity", "Yield to Call"], a: 3, exp: "For premium bonds, the Yield to Call (YTC) is the lowest figure." },
+                { q: "An American investor owns shares in a foreign company through a US bank vault. This is a:", options: ["REIT", "ADR", "ETF", "Warrant"], a: 1, exp: "American Depositary Receipts (ADRs) facilitate US investment in foreign stocks." },
+                { q: "What is the primary risk of a long-term Treasury bond?", options: ["Credit Risk", "Inflation Risk", "Interest Rate Risk", "Liquidity Risk"], a: 2, exp: "Long-term fixed income is highly sensitive to interest rate changes." },
+                { q: "An investor buys an XYZ 50 Call. This investor is:", options: ["Bullish", "Bearish", "Neutral", "Hedging"], a: 0, exp: "Call buyers want the price to go up (Right to Buy)." },
+                { q: "Which investment is required to pass through 90% of taxable income to avoid corporate tax?", options: ["Mutual Fund", "REIT", "Hedge Fund", "ETF"], a: 1, exp: "Real Estate Investment Trusts (REITs) are tax conduits." }
+            ]
+        },
+        {
+            id: 2,
+            title: "III. Trading & Customer Accounts",
+            weight: 0.31,
+            description: "Orders, Settlements, AML, and Prohibited Acts",
+            content: `
+                <h2>3.1 Order Types (SLOBS/BLISS)</h2>
+                <div class="mnemonic-box">
+                    <b>SLOBS (Above Market):</b> Sell Limit, Buy Stop.<br>
+                    <b>BLISS (Below Market):</b> Buy Limit, Sell Stop.
+                </div>
+                <h2>3.2 Trade Settlement</h2>
+                <p>As of May 2024, the standard settlement for equities and corporate bonds is <b>T+1</b> (Trade Date plus one business day).</p>
+                <h2>3.3 Account Types</h2>
+                <ul>
+                    <li><b>JTWROS:</b> Survivorship (Spouses).</li>
+                    <li><b>TIC:</b> Fractional ownership (Partners).</li>
+                    <li><b>Roth IRA:</b> After-tax contributions, tax-free growth.</li>
+                </ul>
+            `,
+            quiz: [
+                { q: "Which order type is used to protect a profit or limit a loss on a long position?", options: ["Buy Limit", "Sell Stop", "Buy Stop", "Market Order"], a: 1, exp: "Sell Stops are placed below the market to 'stop the bleeding' if prices fall." },
+                { q: "A transaction involving cash greater than $10,000 in one day triggers a:", options: ["SAR", "CTR", "U4", "U5"], a: 1, exp: "Currency Transaction Reports (CTRs) are for cash > $10k." },
+                { q: "The 'Golden Rule' of finance refers to:", options: ["Liquidity", "Suitability", "Profitability", "Margin"], a: 1, exp: "Suitability ensures recommendations match the client's profile." },
+                { q: "Excessive trading in a customer's account to generate commissions is:", options: ["Front-running", "Churning", "Backing away", "Freeriding"], a: 1, exp: "Churning is a major ethical violation." },
+                { q: "Regular way settlement for corporate stocks is:", options: ["T+0", "T+1", "T+2", "T+3"], a: 1, exp: "Standard settlement is now T+1." }
+            ]
+        },
+        {
+            id: 3,
+            title: "IV. Regulatory Framework",
+            weight: 0.09,
+            description: "Registration, Continuing Ed, and Communications",
+            content: `
+                <h2>4.1 Registration (Form U4)</h2>
+                <p>Individuals must disclose 10 years of employment and 5 years of residency. A felony in the last 10 years results in <b>Statutory Disqualification</b>.</p>
+                <h2>4.2 Continuing Education</h2>
+                <ul>
+                    <li><b>Regulatory Element:</b> Required annually (by Dec 31).</li>
+                    <li><b>Firm Element:</b> Required annually (administered by firm).</li>
+                </ul>
+            `,
+            quiz: [
+                { q: "How long does a firm have to file Form U5 after a rep's termination?", options: ["10 days", "30 days", "60 days", "90 days"], a: 1, exp: "Form U5 must be filed within 30 days." },
+                { q: "What is the annual gift limit for a registered person to a client?", options: ["$50", "$100", "$250", "Unlimited"], a: 1, exp: "Gifts are limited to $100 per person per year." },
+                { q: "Communications with more than 25 retail investors in 30 days are:", options: ["Correspondence", "Institutional", "Retail Communications", "Advertising"], a: 2, exp: "Retail communications involve > 25 retail investors." },
+                { q: "Failing to complete the Regulatory Element of CE results in:", options: ["Expulsion", "CE Inactive", "Statutory Disqualification", "Fines only"], a: 1, exp: "CE Inactive means you cannot trade or receive commissions." },
+                { q: "Which body regulates the trading of standardized options?", options: ["SEC", "FINRA", "CBOE", "MSRB"], a: 2, exp: "The Chicago Board Options Exchange (CBOE) is the SRO for options." }
+            ]
+        }
+    ];
 
-        <!-- Results View -->
-        <div id="view-results" class="view">
-             <div class="modal-content" style="margin: 0 auto;">
-                <h2 id="resultTitle">Assessment Complete</h2>
-                <div style="font-size: 3rem; font-weight: 800; margin: 1rem 0;" id="resultScore">80%</div>
-                <p id="resultMessage">Great job! You've unlocked the next day.</p>
-                <button class="btn btn-primary btn-full" onclick="app.router.go('dashboard')">Return to Dashboard</button>
-             </div>
-        </div>
-    </main>
+    /* --- APPLICATION STATE --- */
+    let state = {
+        theme: 'light',
+        scores: [0, 0, 0, 0], // Best scores per module
+        completed: [false, false, false, false],
+        activeModule: null,
+        currentQuizIndex: 0,
+        quizCorrect: 0
+    };
 
-    <script>
-        // --- 1. DATA LAYER & CURRICULUM ---
-        // Simulating the 28-Day Plan structure
-        const CURRICULUM = [
-            {
-                id: 1,
-                title: "Equity Securities",
-                domain: "Capital Markets", // 16% Weight
-                desc: "Common stock, preferred stock, rights, warrants, and ADRs.",
-                content: `
-                    <h2>Day 1: Equity Basics</h2>
-                    <p>Welcome to Day 1. Today focuses on ownership in corporations. The SIE weighs 'Capital Markets' at 16%.</p>
-                    <h3>1. Common Stock</h3>
-                    <p>Represents ultimate ownership. Holders have voting rights (statutory vs cumulative) and rights to dividends if declared.</p>
-                    <h3>2. Preferred Stock</h3>
-                    <p>Senior to common stock in liquidation. Fixed dividend rate. Sensitive to interest rates (inverse relationship).</p>
-                    <h3>3. ADRs (American Depositary Receipts)</h3>
-                    <p>Facilitate US trading of foreign stock. Subject to currency risk.</p>
-                `,
-                questions: [
-                    {
-                        text: "Which of the following represents the most junior security in a corporate liquidation?",
-                        options: ["Preferred Stock", "Debentures", "Common Stock", "Mortgage Bonds"],
-                        correct: 2,
-                        explanation: "Common stockholders are the last to be paid in the event of corporate bankruptcy (residual claim)."
-                    },
-                    {
-                        text: "An investor holding an ADR is primarily exposed to which specific risk?",
-                        options: ["Political Risk", "Currency Risk", "Interest Rate Risk", "Call Risk"],
-                        correct: 1,
-                        explanation: "ADRs represent foreign stock. If the foreign currency weakens against the USD, the ADR value drops."
-                    },
-                    {
-                        text: "Which type of voting allows a shareholder to cast all votes for a single board seat?",
-                        options: ["Statutory Voting", "Cumulative Voting", "Proxy Voting", "Block Voting"],
-                        correct: 1,
-                        explanation: "Cumulative voting benefits smaller shareholders by allowing them to pool votes for one candidate."
-                    }
-                ]
-            },
-            {
-                id: 2,
-                title: "Debt Instruments",
-                domain: "Capital Markets",
-                desc: "Bonds, yields, maturities, and credit ratings.",
-                content: `
-                    <h2>Day 2: The Bond Market</h2>
-                    <p>Bonds are debt obligations. The borrower (issuer) pays interest (coupon) to the lender (investor).</p>
-                    <h3>Key Relationships</h3>
-                    <ul>
-                        <li><strong>Price vs. Yield:</strong> Inverse relationship. As interest rates rise, bond prices fall.</li>
-                        <li><strong>Duration:</strong> Measures sensitivity to interest rate changes. Long-term, low-coupon bonds are most volatile.</li>
-                    </ul>
-                `,
-                questions: [
-                    {
-                        text: "If market interest rates rise, what happens to the market price of existing bonds?",
-                        options: ["They increase", "They decrease", "They remain unchanged", "They fluctuate randomly"],
-                        correct: 1,
-                        explanation: "Bond prices and interest rates have an inverse relationship."
-                    },
-                    {
-                        text: "Which bond has the highest interest rate risk?",
-                        options: ["Short-term Treasury Bill", "10-year Corporate Bond", "30-year Zero-Coupon Bond", "5-year Municipal Bond"],
-                        correct: 2,
-                        explanation: "Longer maturity and lower coupon (zero) result in the highest duration and volatility."
-                    }
-                ]
-            },
-            // Generative placeholders for Days 3-28 to simulate full app structure
-            ...Array.from({ length: 26 }, (_, i) => ({
-                id: i + 3,
-                title: `Day ${i + 3} Module`,
-                domain: i < 5 ? "Capital Markets" : i < 15 ? "Products & Risks" : "Trading & Accounts",
-                desc: "Advanced topics, regulation, and account types.",
-                content: `<h2>Day ${i + 3}: Advanced Concepts</h2><p>This is placeholder content for Day ${i + 3} logic testing.</p>`,
-                questions: [
-                    {
-                        text: `Sample Question for Day ${i + 3}?`,
-                        options: ["Option A", "Option B", "Option C", "Option D"],
-                        correct: 0,
-                        explanation: "This is a placeholder explanation."
-                    }
-                ]
-            }))
-        ];
+    /* --- CORE LOGIC --- */
+    function init() {
+        const saved = localStorage.getItem('sie_mastery_state');
+        if (saved) state = JSON.parse(saved);
+        
+        applyTheme();
+        renderDashboard();
+    }
 
-        // --- 2. STORAGE MANAGER ---
-        class StorageManager {
-            constructor() {
-                this.KEY = 'sie_prep_data_v1';
-                this.state = this.load();
-            }
+    function renderDashboard() {
+        // Calculate Weighted Score
+        let total = 0;
+        state.scores.forEach((s, i) => total += (s * MODULES[i].weight));
+        
+        document.getElementById('total-score').innerText = Math.round(total) + '%';
+        
+        const completedCount = state.completed.filter(c => c).length;
+        document.getElementById('progress-text').innerText = `${completedCount}/4`;
+        document.getElementById('overall-progress-bar').style.width = (completedCount / 4 * 100) + '%';
 
-            load() {
-                const data = localStorage.getItem(this.KEY);
-                if (data) return JSON.parse(data);
-                
-                // Default State
-                return {
-                    currentDay: 1,
-                    unlockedDays: [1], // Array of day IDs
-                    scores: {}, // { 1: 80, 2: 100 }
-                    flaggedQuestions: [] // For review logic
-                };
-            }
+        const list = document.getElementById('module-list');
+        list.innerHTML = '';
 
-            save() {
-                localStorage.setItem(this.KEY, JSON.stringify(this.state));
-            }
+        MODULES.forEach((mod, i) => {
+            const isLocked = i > 0 && !state.completed[i-1];
+            const div = document.createElement('div');
+            div.className = `module-item ${isLocked ? 'locked' : ''}`;
+            div.onclick = () => !isLocked && openModule(i);
 
-            unlockDay(dayId) {
-                if (!this.state.unlockedDays.includes(dayId)) {
-                    this.state.unlockedDays.push(dayId);
-                    // Update current day pointer if strictly linear
-                    if(dayId > this.state.currentDay) this.state.currentDay = dayId;
-                    this.save();
-                }
-            }
+            div.innerHTML = `
+                <div class="module-meta">
+                    <div class="module-title">${mod.title}</div>
+                    <div class="module-desc">${mod.description} (Weight: ${mod.weight*100}%)</div>
+                </div>
+                <div class="module-score">${state.scores[i]}%</div>
+            `;
+            list.appendChild(div);
+        });
 
-            recordScore(dayId, percentage) {
-                // Keep highest score
-                const existing = this.state.scores[dayId] || 0;
-                this.state.scores[dayId] = Math.max(existing, percentage);
-                this.save();
-            }
+        document.getElementById('gate-status').innerText = completedCount === 4 ? "Mastered" : "Active Study";
+    }
 
-            reset() {
-                localStorage.removeItem(this.KEY);
-                location.reload();
-            }
+    function openModule(id) {
+        state.activeModule = MODULES[id];
+        document.getElementById('content-area').innerHTML = state.activeModule.content;
+        showView('content');
+    }
+
+    function startQuiz() {
+        state.currentQuizIndex = 0;
+        state.quizCorrect = 0;
+        showView('quiz');
+        renderQuestion();
+    }
+
+    function renderQuestion() {
+        const q = state.activeModule.quiz[state.currentQuizIndex];
+        document.getElementById('quiz-progress-text').innerText = `Question ${state.currentQuizIndex + 1} of ${state.activeModule.quiz.length}`;
+        document.getElementById('question-text').innerText = q.q;
+        
+        const optionsArea = document.getElementById('options-area');
+        optionsArea.innerHTML = '';
+        
+        q.options.forEach((opt, i) => {
+            const div = document.createElement('div');
+            div.className = 'option';
+            div.innerText = opt;
+            div.onclick = () => checkAnswer(i, div);
+            optionsArea.appendChild(div);
+        });
+
+        document.getElementById('quiz-feedback').style.display = 'none';
+    }
+
+    function checkAnswer(idx, el) {
+        const q = state.activeModule.quiz[state.currentQuizIndex];
+        const options = document.querySelectorAll('.option');
+        options.forEach(o => o.style.pointerEvents = 'none');
+
+        if (idx === q.a) {
+            el.classList.add('correct');
+            state.quizCorrect++;
+        } else {
+            el.classList.add('wrong');
+            options[q.a].classList.add('correct');
         }
 
-        // --- 3. QUIZ ENGINE ---
-        class QuizEngine {
-            constructor(app) {
-                this.app = app;
-                this.activeQuestions = [];
-                this.currentIndex = 0;
-                this.score = 0;
-                this.currentDayId = null;
-            }
+        document.getElementById('explanation-text').innerHTML = `<b>Logic:</b> ${q.exp}`;
+        document.getElementById('quiz-feedback').style.display = 'block';
+    }
 
-            start() {
-                const dayId = this.app.router.params.dayId;
-                const dayData = CURRICULUM.find(d => d.id === parseInt(dayId));
-                
-                if (!dayData) return;
+    function handleNext() {
+        if (state.currentQuizIndex < state.activeModule.quiz.length - 1) {
+            state.currentQuizIndex++;
+            renderQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
 
-                this.currentDayId = dayData.id;
-                this.activeQuestions = [...dayData.questions]; // Clone array
-                this.currentIndex = 0;
-                this.score = 0;
+    function finishQuiz() {
+        const score = Math.round((state.quizCorrect / state.activeModule.quiz.length) * 100);
+        const moduleId = state.activeModule.id;
 
-                this.app.router.go('quiz');
-                this.renderQuestion();
-                this.updateStats();
-            }
+        // Persist high score
+        if (score > state.scores[moduleId]) state.scores[moduleId] = score;
 
-            renderQuestion() {
-                const q = this.activeQuestions[this.currentIndex];
-                const container = document.getElementById('questionContainer');
-                const nextBtn = document.getElementById('nextBtn');
-                const submitBtn = document.getElementById('submitBtn');
-                const feedback = document.getElementById('feedbackArea');
-
-                // Reset UI
-                nextBtn.classList.add('hidden');
-                submitBtn.classList.remove('hidden');
-                submitBtn.disabled = true; // Disable until selection
-                feedback.classList.remove('show');
-                
-                document.getElementById('qText').textContent = q.text;
-                const ul = document.getElementById('qOptions');
-                ul.innerHTML = '';
-
-                q.options.forEach((opt, idx) => {
-                    const li = document.createElement('li');
-                    li.className = 'option-item';
-                    li.textContent = opt;
-                    li.dataset.index = idx;
-                    li.onclick = () => this.selectOption(idx);
-                    ul.appendChild(li);
-                });
-            }
-
-            selectOption(idx) {
-                if(document.getElementById('submitBtn').classList.contains('hidden')) return; // Prevent change after submit
-
-                const options = document.querySelectorAll('.option-item');
-                options.forEach(o => o.classList.remove('selected'));
-                options[idx].classList.add('selected');
-                document.getElementById('submitBtn').disabled = false;
-            }
-
-            submitAnswer() {
-                const selected = document.querySelector('.option-item.selected');
-                if (!selected) return;
-
-                const selectedIdx = parseInt(selected.dataset.index);
-                const q = this.activeQuestions[this.currentIndex];
-                const options = document.querySelectorAll('.option-item');
-
-                // Visual Feedback
-                if (selectedIdx === q.correct) {
-                    selected.classList.add('correct');
-                    this.score++;
-                } else {
-                    selected.classList.add('incorrect');
-                    options[q.correct].classList.add('correct');
-                    // Add to spaced repetition queue logic here
-                }
-
-                // Show Explanation
-                document.getElementById('explanationText').textContent = q.explanation;
-                document.getElementById('feedbackArea').classList.add('show');
-
-                // Toggle Buttons
-                document.getElementById('submitBtn').classList.add('hidden');
-                document.getElementById('nextBtn').classList.remove('hidden');
-            }
-
-            next() {
-                this.currentIndex++;
-                if (this.currentIndex < this.activeQuestions.length) {
-                    this.renderQuestion();
-                    this.updateStats();
-                } else {
-                    this.finish();
-                }
-            }
-
-            updateStats() {
-                document.getElementById('quizProgress').textContent = `Question ${this.currentIndex + 1}/${this.activeQuestions.length}`;
-                document.getElementById('quizScore').textContent = `Score: ${this.score}`;
-            }
-
-            finish() {
-                const percentage = Math.round((this.score / this.activeQuestions.length) * 100);
-                const passed = percentage >= 70; // 70% passing threshold
-                
-                // Update Data
-                this.app.data.recordScore(this.currentDayId, percentage);
-                
-                const title = document.getElementById('resultTitle');
-                const msg = document.getElementById('resultMessage');
-                const scoreDisplay = document.getElementById('resultScore');
-
-                scoreDisplay.textContent = `${percentage}%`;
-                
-                if (passed) {
-                    title.textContent = "Day Complete!";
-                    title.style.color = "var(--success)";
-                    msg.textContent = "You've mastered this section. The next day is now unlocked.";
-                    // Unlock next day
-                    if (this.currentDayId < 28) {
-                        this.app.data.unlockDay(this.currentDayId + 1);
-                    }
-                } else {
-                    title.textContent = "Review Needed";
-                    title.style.color = "var(--danger)";
-                    msg.textContent = "You need 70% to proceed. Review the material and try again.";
-                }
-
-                this.app.router.go('results');
-            }
+        // Passing Gate
+        let message = `Quiz Complete! You scored ${score}%. `;
+        if (score >= 70) {
+            state.completed[moduleId] = true;
+            message += "Module Unlocked!";
+        } else {
+            message += "You need 70% to unlock the next module.";
         }
 
-        // --- 4. ROUTER & UI CONTROLLER ---
-        class Router {
-            constructor() {
-                this.views = document.querySelectorAll('.view');
-                this.params = {};
-            }
+        alert(message);
+        saveState();
+        showView('dashboard');
+        renderDashboard();
+    }
 
-            go(viewId, params = {}) {
-                this.params = params;
-                
-                // Hide all
-                this.views.forEach(v => v.classList.remove('active'));
-                
-                // Show target
-                const target = document.getElementById(`view-${viewId}`);
-                if (target) {
-                    target.classList.add('active');
-                    window.scrollTo(0,0);
-                    
-                    // Trigger hooks
-                    if(viewId === 'dashboard') app.renderDashboard();
-                    if(viewId === 'lesson') app.renderLesson();
-                }
-            }
+    /* --- HELPERS --- */
+    function showView(viewId) {
+        document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+        document.getElementById(`view-${viewId}`).classList.add('active');
+        window.scrollTo(0,0);
+    }
+
+    function toggleTheme() {
+        state.theme = state.theme === 'light' ? 'dark' : 'light';
+        applyTheme();
+        saveState();
+    }
+
+    function applyTheme() {
+        document.documentElement.setAttribute('data-theme', state.theme);
+        document.getElementById('theme-toggle').innerText = state.theme === 'light' ? 'Dark Mode' : 'Light Mode';
+    }
+
+    function saveState() {
+        localStorage.setItem('sie_mastery_state', JSON.stringify(state));
+    }
+
+    function resetProgress() {
+        if (confirm("Reset all progress? This cannot be undone.")) {
+            localStorage.removeItem('sie_mastery_state');
+            location.reload();
         }
+    }
 
-        // --- 5. MAIN APP ---
-        class App {
-            constructor() {
-                this.data = new StorageManager();
-                this.router = new Router();
-                this.quiz = new QuizEngine(this);
-                
-                this.init();
-            }
-
-            init() {
-                this.renderDashboard();
-                this.updateGlobalProgress();
-            }
-
-            updateGlobalProgress() {
-                const completed = Object.keys(this.data.state.scores).length;
-                document.getElementById('globalProgress').textContent = `Progress: ${completed} / 28 Days`;
-            }
-
-            renderDashboard() {
-                const grid = document.getElementById('dayGrid');
-                grid.innerHTML = '';
-                this.updateGlobalProgress();
-
-                CURRICULUM.forEach(day => {
-                    const isUnlocked = this.data.state.unlockedDays.includes(day.id);
-                    const score = this.data.state.scores[day.id];
-                    const isCompleted = score >= 70;
-                    
-                    const card = document.createElement('div');
-                    card.className = `day-card ${isUnlocked ? '' : 'locked'} ${isCompleted ? 'completed' : ''}`;
-                    
-                    // Domain color coding
-                    let badgeClass = 'badge-1';
-                    if(day.domain.includes('Products')) badgeClass = 'badge-2';
-                    if(day.domain.includes('Trading')) badgeClass = 'badge-3';
-                    
-                    card.innerHTML = `
-                        <div>
-                            <span class="day-num">Day ${day.id}</span>
-                            <span class="badge ${badgeClass}" style="float:right; font-size:0.6rem;">${day.domain.split(' ')[0]}</span>
-                            <div class="day-title">${day.title}</div>
-                            <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">${day.desc}</div>
-                        </div>
-                        <div class="day-status">
-                            ${isCompleted 
-                                ? `<span class="text-success">✔ Score: ${score}%</span>` 
-                                : isUnlocked 
-                                    ? `<span style="color:var(--primary)">Start Lesson →</span>` 
-                                    : `<span class="text-locked">Locked</span>`
-                            }
-                        </div>
-                    `;
-
-                    if (isUnlocked) {
-                        card.onclick = () => this.router.go('lesson', { dayId: day.id });
-                    }
-
-                    grid.appendChild(card);
-                });
-            }
-
-            renderLesson() {
-                const dayId = this.router.params.dayId;
-                const dayData = CURRICULUM.find(d => d.id === parseInt(dayId));
-                if(dayData) {
-                    document.getElementById('lessonContent').innerHTML = dayData.content;
-                }
-            }
-        }
-
-        // Initialize App
-        const app = new App();
-
-    </script>
+    // Startup
+    init();
+</script>
 </body>
 </html>
 
