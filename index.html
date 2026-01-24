@@ -1,604 +1,427 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>28-Day SIE Exam Prep Course</title>
-    <!-- Tailwind CSS for styling -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Phosphor Icons -->
-    <script src="https://unpkg.com/@phosphor-icons/web"></script>
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(229, 231, 235, 0.5);
-        }
-        .progress-ring {
-            transition: stroke-dashoffset 0.35s;
-            transform: rotate(-90deg);
-            transform-origin: 50% 50%;
-        }
-        /* Custom scrollbar */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #f1f1f1; }
-        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import { 
+  Trophy, BookOpen, Brain, Gauge, Moon, Sun, 
+  ChevronRight, LayoutDashboard, RotateCcw, 
+  AlertCircle, Clock, Zap, Calculator, Target,
+  CheckCircle2, XCircle, Info, ChevronLeft,
+  ArrowRight, ShieldCheck, GraduationCap,
+  RefreshCw
+} from 'lucide-react';
+
+const APP_ID = 'sie_ultra_intensive_v1';
+
+// --- DATA: THE 28-DAY INTENSIVE CURRICULUM ---
+const CURRICULUM = {
+  1: { d: 1, title: "SEC, SROs & Participants", focus: "Regulatory Entities", content: "Master the hierarchy: SEC (Gov) > SROs (FINRA, MSRB, CBOE). Understand the Broker-Dealer: acting as a 'Broker' (Agency/Commission) vs 'Dealer' (Principal/Markup). Identify SIPC ($500k coverage) and FDIC ($250k)." },
+  2: { d: 1, title: "Economics & Monetary Policy", focus: "The Fed", content: "The Fed uses D-O-R-M: Discount Rate, Open Market Operations (most used), Reserve Requirements, and Margin (Reg T). When the Fed buys securities, money supply expands (easing/inflationary). When they sell, it tightens." },
+  3: { d: 1, title: "Underwriting & the 1933 Act", focus: "Primary Markets", content: "Securities Act of 1933 (Paper Act) regulates new issues. Cooling-off period (20 days): Only 'Indications of Interest' and 'Red Herrings' allowed. No sales, no deposits, no research reports." },
+  4: { d: 2, title: "Equity Securities & Voting", focus: "Common/Preferred", content: "Common stock (residual claim) vs Preferred stock (fixed dividend). Voting: Cumulative (favors small shareholders) vs Statutory (1 vote per share per seat). ADRs allow US investors to buy foreign stocks in USD." },
+  5: { d: 2, title: "Debt Fundamentals & Seesaw", focus: "Bonds", content: "Inverse relationship: Interest rates up, bond prices down. Yield hierarchy: At a discount, YTC > YTM > CY > NY. At a premium, NY > CY > YTM > YTC. Accrued interest: 30/360 for corporates/munis." },
+  6: { d: 2, title: "Treasuries & Municipal Debt", focus: "Taxation", content: "Treasuries (T-Bills, Notes, Bonds) taxed at Federal level, exempt at State/Local. GO Bonds (voter approval/taxes) vs Revenue Bonds (user fees). Municipal bond interest is usually tax-free at the Federal level." },
+  7: { d: 1, title: "Part 1 Intensive Review", focus: "Capital Markets (16%)", content: "Review primary market (issuers) vs secondary market (investors). Roles of clearing agencies (NSCC/DTC) and custodians. Difference between a prime broker and an executing broker." },
+  8: { d: 2, title: "Intro to Options (Calls/Puts)", focus: "Derivatives", content: "Call Buyers have the Right to Buy (Bullish). Put Buyers have the Right to Sell (Bearish). Contract = 100 shares. Intrinsic value is 'in-the-money' amount; Time value is the remainder of the premium." },
+  9: { d: 2, title: "Hedging & Advanced Options", focus: "Strategy", content: "Protective Puts: Buy a put to protect a long stock (Downside hedge). Covered Calls: Sell a call against long stock (Income/Neutral hedge). Break-even: Call = Strike + Prem, Put = Strike - Prem." },
+  10: { d: 2, title: "Mutual Funds & NAV", focus: "Packaged Products", content: "Open-end (Mutual Funds) issue continuous shares, trade at NAV + Sales Charge. Closed-end issue fixed shares, trade on exchanges. ETFs are passive, liquid, and can be traded intraday like stocks." },
+  11: { d: 2, title: "Variable Annuities & 1035", focus: "Insurance", content: "Separate account carries investment risk. Accumulation units (buying) vs Annuity units (payout). 1035 Exchange: Tax-free transfer between insurance products. 10% penalty for withdrawal before 59.5." },
+  12: { d: 2, title: "REITs, DPPs & Partnerships", focus: "Alternatives", content: "REITs: Must pay out 90% of income. DPPs (Direct Participation Programs) pass through gains AND losses. Focus on illiquidity risk. Limited partners have limited liability but no management control." },
+  13: { d: 2, title: "529 Plans & ABLE Accounts", focus: "State Products", content: "529 Plans: After-tax contributions, tax-free growth for education. ABLE: For disabilities (onset before age 26). LGIPs: Short-term investment pools for local governments." },
+  14: { d: 2, title: "Part 2 Intensive Review", focus: "Products (44%)", content: "CORE SECTION. Practice the Seesaw and Options labs until BE calculations are second nature. Know that Mutual Funds do not trade on exchanges, but ETFs do." },
+  15: { d: 3, title: "Order Types & Spreads", focus: "Trading", content: "Market order (speed) vs Limit order (price). Stop order: Triggered at stop price, then becomes a market order. The 'Spread' is Ask minus Bid. Market makers buy at the Bid and sell at the Ask." },
+  16: { d: 3, title: "Customer Accounts & KYC", focus: "Accounts", content: "JTWROS (survivor ownership) vs TIC (estate ownership). KYC (Know Your Customer) requires financial (income/net worth) and non-financial (age/objectives) info. Suitability is the absolute priority." },
+  17: { d: 3, title: "Margin: Reg T & Maintenance", focus: "Leverage", content: "Reg T: 50% initial deposit. Maintenance: 25% for Long, 30% for Short. Falling below maintenance triggers a 'House Call'. SMA is 'Buying Power' generated by excess equity." },
+  18: { d: 3, title: "IRAs & Retirement Plans", focus: "Retirement", content: "Traditional IRA (Pre-tax, RMDs at 73) vs Roth IRA (After-tax, tax-free growth, no RMDs). ERISA: Sets standards for private corporate plans. Vesting schedules and fiduciary duties." },
+  19: { d: 3, title: "AML: SARs & CTRs", focus: "Compliance", content: "Stages: Placement, Layering, Integration. CTR: Cash >$10k. SAR: Suspicious activity >$5k. SARs filed with FinCEN within 30 days. No 'tipping off' the suspect allowed." },
+  20: { d: 3, title: "Privacy (Reg S-P) & Calls", focus: "Communication", content: "Reg S-P: Privacy notice at opening and annually. TCPA: No cold calls before 8am/after 9pm. Institutional communication (only for institutions) vs Retail communication (>25 retail people)." },
+  21: { d: 3, title: "Market Manipulation", focus: "Prohibited", content: "Insider Trading: Material non-public info. Front-running: Personal trade before client trade. Churning: Excessive volume for fees. Freeriding: Selling before paying for the buy." },
+  22: { d: 3, title: "Part 3 Intensive Review", focus: "Trading (31%)", content: "Focus on AML and order types. Settlement: T+1 (Treasuries/Options), T+2 (Corporate/Munis). Regulation T payment is T+4 (S+2)." },
+  23: { d: 4, title: "Registration (U4) & SD", focus: "Regulations", content: "Form U4: 10-year employment, 5-year residency. Statutory Disqualification (SD): Felony or securities misdemeanor in last 10 years. Fingerprints required for all registered persons." },
+  24: { d: 4, title: "Continuing Education (CE)", focus: "Regulations", content: "Regulatory Element: Required annually on anniversary. Firm Element: Required annually. Failure to complete results in CE Inactive status (no commissions, no functions)." },
+  25: { d: 4, title: "Complaints & Gifts", focus: "Regulations", content: "Gifts: $100 limit. Complaints: Must be written to be formal. Records kept 4 years. Selling Away: Private securities trades without firm approval (violation of FINRA rules)." },
+  26: { d: 4, title: "Political Contributions (G-37)", focus: "Regulations", content: "MFPs: $250 limit per election if they can vote for candidate. 2-year ban on negotiated municipal business for firm if rule is violated ('Pay to Play')." },
+  27: { d: 4, title: "Part 4 Intensive Review", focus: "Regs (9%)", content: "Review U4 disclosures and CE rules. Know the difference between a gift and 'ordinary business entertainment' (which has no dollar limit if RR attends)." },
+  28: { d: 2, title: "FINAL STRIKE: MOCK EXAM", focus: "Readiness", content: "105 minutes. 75 scored + 5 unscored. Look for 'Except', 'Always', 'Only'. Use the scratch pad for the Bond Seesaw and Option BE calculations." }
+};
+
+// --- DATA: FLASHCARDS ---
+const FLASHCARDS = [
+  { t: "SRO", d: "Self-Regulatory Organization (FINRA, MSRB). Enforces industry rules." },
+  { t: "Statutory Disqualification", d: "Felony or securities misdemeanor conviction within 10 years." },
+  { t: "Reg T", d: "Federal Reserve rule: 50% initial margin for securities." },
+  { t: "ADR", d: "American Depositary Receipt. Foreign stock trading in US Dollars." },
+  { t: "Churning", d: "Excessive trading to generate commissions. Prohibited." },
+  { t: "Hypothecation", d: "Pledging securities as collateral for a margin loan." },
+  { t: "T+1", d: "Settlement for Treasuries and Options." },
+  { t: "T+2", d: "Settlement for Corporate and Municipal bonds/stocks." },
+  { t: "Form U5", d: "Termination form filed within 30 days of leaving a firm." },
+  { t: "SAR", d: "Suspicious Activity Report. Filed for activity >$5,000." },
+  { t: "CTR", d: "Currency Transaction Report. Filed for cash >$10,000." },
+  { t: "Wash Sale", d: "Selling at a loss and buying back within 30 days. Loss disallowed." },
+  { t: "Cumulative Voting", d: "Favors small shareholders (votes can be concentrated)." },
+  { t: "Ex-Dividend Date", d: "One business day before record date. First day stock trades without dividend." },
+  { t: "Selling Away", d: "Executing securities trades outside the firm without permission." }
+];
+
+// --- DATA: INTENSIVE QUESTION BANK ---
+const MASTER_QUESTION_BANK = [
+  { id: 1, d: 2, q: "A customer buys 1 ABC Jan 50 Call at 4. What is the break-even price?", a: ["46", "50", "54", "58"], c: 2 },
+  { id: 2, d: 2, q: "As interest rates rise, which of the following bonds will decrease most in price?", a: ["1-year T-Bill", "5-year Note", "10-year Bond", "30-year Zero-Coupon Bond"], c: 3 },
+  { id: 3, d: 4, q: "An RR is convicted of a felony for shoplifting 8 years ago. Which is true?", a: ["They can remain registered", "They are statutorily disqualified", "They only need to notify the SEC", "No action is needed"], c: 1 },
+  { id: 4, d: 3, q: "A SAR must be filed within how many days of discovering suspicious activity?", a: ["10 days", "15 days", "30 days", "90 days"], c: 2 },
+  { id: 5, d: 1, q: "Which SRO regulates the municipal bond market but has no enforcement power?", a: ["FINRA", "SEC", "MSRB", "CBOE"], c: 2 },
+  { id: 6, d: 2, q: "Which of the following investment companies issues a fixed number of shares and trades on an exchange?", a: ["Mutual Fund", "Closed-end Fund", "UIT", "ETF"], c: 1 },
+  { id: 7, d: 3, q: "An investor wants to sell a stock if it falls below 40. They should place a:", a: ["Buy Limit 40", "Sell Limit 40", "Sell Stop 40", "Buy Stop 40"], c: 2 },
+  { id: 8, d: 4, q: "The maximum gift allowed to a person at another firm is:", a: ["$50", "$100", "$250", "Unlimited"], c: 1 },
+  { id: 9, d: 1, q: "Which of the following describes a 'Broker' acting in an agency capacity?", a: ["Taking a position", "Charging a commission", "Charging a markup", "Acting as a principal"], c: 1 },
+  { id: 10, d: 2, q: "A bond is trading at 105. Its Coupon (NY) is 6%. Which is true?", a: ["YTM > 6%", "YTM < 6%", "CY < YTM", "Price is at a discount"], c: 1 }
+];
+
+const DOMAINS = {
+  1: { n: "Capital Markets", w: 16, c: "text-blue-500", bg: "bg-blue-500" },
+  2: { n: "Products & Risks", w: 44, c: "text-purple-500", bg: "bg-purple-500" },
+  3: { n: "Trading & Accounts", w: 31, c: "text-emerald-500", bg: "bg-emerald-500" },
+  4: { n: "Regulations", w: 9, c: "text-orange-500", bg: "bg-orange-500" }
+};
+
+export default function App() {
+  const [view, setView] = useState('dashboard');
+  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [userState, setUserState] = useState({
+    completedDays: [],
+    bestExam: 0,
+    examHistory: [],
+    cardIndex: 0
+  });
+
+  // Simulator & Lab States
+  const [exam, setExam] = useState(null);
+  const [labState, setLabState] = useState({ bondRate: 5, optionType: 'long-call', strike: 50, premium: 3, cardFlipped: false });
+  const [studyDay, setStudyDay] = useState(1);
+
+  // Persistence
+  useEffect(() => {
+    const saved = localStorage.getItem(APP_ID);
+    if (saved) setUserState(JSON.parse(saved));
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem(APP_ID, JSON.stringify(userState));
+    if (isDarkMode) document.documentElement.classList.add('dark');
+    else document.documentElement.classList.remove('dark');
+  }, [userState, isDarkMode]);
+
+  // Logic: Weighted Readiness
+  const readiness = useMemo(() => {
+    let score = 0;
+    const domCompleted = { 1: 0, 2: 0, 3: 0, 4: 0 };
+    const domTotal = { 1: 7, 2: 7, 3: 8, 4: 6 };
+
+    userState.completedDays.forEach(day => {
+      const d = CURRICULUM[day].d;
+      domCompleted[d]++;
+    });
+
+    Object.keys(DOMAINS).forEach(id => {
+      score += (domCompleted[id] / domTotal[id]) * DOMAINS[id].w;
+    });
+    return Math.min(Math.round(score), 100);
+  }, [userState.completedDays]);
+
+  // --- ACTIONS ---
+  const startExam = () => {
+    const questions = [...MASTER_QUESTION_BANK].sort(() => Math.random() - 0.5);
+    setExam({ questions, answers: {}, finished: false, startTime: Date.now() });
+    setView('exam');
+  };
+
+  const handleExamAnswer = (qIdx, aIdx) => {
+    setExam(prev => ({ ...prev, answers: { ...prev.answers, [qIdx]: aIdx } }));
+  };
+
+  const submitExam = () => {
+    let correct = 0;
+    exam.questions.forEach((q, i) => { if (exam.answers[i] === q.c) correct++; });
+    const score = Math.round((correct / exam.questions.length) * 100);
+    setUserState(prev => ({
+      ...prev,
+      bestExam: Math.max(prev.bestExam, score),
+      examHistory: [{ date: new Date().toLocaleDateString(), score }, ...prev.examHistory].slice(0, 5)
+    }));
+    setExam(prev => ({ ...prev, finished: true }));
+  };
+
+  const markComplete = (day) => {
+    if (!userState.completedDays.includes(day)) {
+      setUserState(prev => ({ ...prev, completedDays: [...prev.completedDays, day] }));
+    }
+    if (day < 28) setStudyDay(day + 1);
+    else setView('dashboard');
+  };
+
+  // UI Helpers
+  const ProgressBar = ({ val, color = "bg-blue-600", h = "h-2" }) => (
+    <div className={`w-full bg-gray-200 dark:bg-gray-800 rounded-full ${h} overflow-hidden`}>
+      <div className={`${color} ${h} transition-all duration-1000`} style={{ width: `${val}%` }} />
+    </div>
+  );
+
+  return (
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100 font-sans transition-colors duration-300">
+      
+      {/* Navigation */}
+      <nav className="sticky top-0 z-50 bg-white/90 dark:bg-gray-950/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-800 px-6 py-4">
+        <div className="max-w-6xl mx-auto flex justify-between items-center">
+          <div className="flex items-center gap-3 cursor-pointer" onClick={() => setView('dashboard')}>
+            <div className="bg-blue-600 p-2 rounded-lg text-white shadow-lg"><Target size={20} /></div>
+            <span className="font-black text-xl tracking-tighter">SIE <span className="text-blue-600">INTENSIVE</span></span>
+          </div>
+          <div className="flex items-center gap-4 sm:gap-6">
+            <button onClick={() => setView('labs')} className="text-xs font-black uppercase flex items-center gap-2 hover:text-blue-600"><Calculator size={16} /> Labs</button>
+            <button onClick={() => setView('flashcards')} className="text-xs font-black uppercase flex items-center gap-2 hover:text-blue-600"><Zap size={16} /> Cards</button>
+            <div className="h-6 w-px bg-gray-200 dark:bg-gray-800" />
+            <button onClick={() => setIsDarkMode(!isDarkMode)} className="p-2 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800">
+              {isDarkMode ? <Sun size={20} /> : <Moon size={20} />}
+            </button>
+          </div>
+        </div>
+      </nav>
+
+      <main className="max-w-6xl mx-auto p-6 sm:p-10">
         
-        .option-card:hover { transform: translateY(-2px); }
-        .correct-answer { background-color: #dcfce7; border-color: #22c55e; color: #166534; }
-        .wrong-answer { background-color: #fee2e2; border-color: #ef4444; color: #991b1b; }
-    </style>
-</head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+        {/* DASHBOARD */}
+        {view === 'dashboard' && (
+          <div className="space-y-12 animate-in fade-in duration-500">
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+              <div>
+                <h1 className="text-4xl font-black mb-1 tracking-tight">Deployment Ready?</h1>
+                <p className="text-gray-500 dark:text-gray-400 font-medium italic">FINRA passing threshold: 70%. Your current status is below.</p>
+              </div>
+              <button onClick={startExam} className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-4 rounded-xl font-black shadow-xl shadow-blue-500/30 transition-all hover:scale-105">
+                START EXAM SIMULATOR
+              </button>
+            </header>
 
-    <!-- Header / Navigation -->
-    <header class="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center gap-3 cursor-pointer" onclick="App.renderDashboard()">
-                <i class="ph-fill ph-graduation-cap text-indigo-600 text-2xl"></i>
-                <h1 class="font-bold text-lg tracking-tight">SIE <span class="text-indigo-600">Prep 28</span></h1>
-            </div>
-            <div class="flex items-center gap-6">
-                <div class="hidden md:flex flex-col items-end">
-                    <span class="text-xs font-semibold text-slate-500 uppercase tracking-wider">Exam Readiness</span>
-                    <div class="flex items-center gap-2">
-                        <div class="w-32 h-2 bg-slate-100 rounded-full overflow-hidden">
-                            <div id="header-progress-bar" class="h-full bg-indigo-600 transition-all duration-500" style="width: 0%"></div>
-                        </div>
-                        <span id="header-progress-text" class="text-sm font-bold text-indigo-600">0%</span>
-                    </div>
+            {/* Overall Score */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2 bg-white dark:bg-gray-900 p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm relative overflow-hidden">
+                <div className="flex justify-between items-end mb-6">
+                  <div>
+                    <h3 className="text-[10px] font-black text-blue-600 uppercase tracking-[0.2em] mb-2">Weighted Readiness</h3>
+                    <div className="text-7xl font-black">{readiness}%</div>
+                  </div>
+                  <div className={`px-4 py-1.5 rounded-full text-xs font-black ${readiness >= 70 ? 'bg-emerald-500/10 text-emerald-500' : 'bg-gray-100 dark:bg-gray-800 text-gray-500'}`}>
+                    {readiness >= 70 ? 'STRIKE AUTHORIZED' : 'TRAINING REQ'}
+                  </div>
                 </div>
-                <button onclick="App.resetProgress()" class="text-slate-400 hover:text-red-500 transition-colors" title="Reset Progress">
-                    <i class="ph ph-trash"></i>
-                </button>
+                <ProgressBar val={readiness} h="h-4" color="bg-gradient-to-r from-blue-600 to-indigo-500" />
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-10">
+                  {Object.entries(DOMAINS).map(([id, d]) => (
+                    <div key={id}>
+                      <div className="text-[9px] font-black text-gray-400 uppercase tracking-widest mb-1">{d.n.split(' ')[0]}</div>
+                      <div className={`text-xl font-black ${d.c}`}>{d.w}%</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-gray-900 p-8 rounded-3xl text-white shadow-2xl flex flex-col justify-between overflow-hidden relative">
+                <div className="relative z-10">
+                  <h3 className="text-xs font-black uppercase tracking-widest opacity-60 mb-1">High Score</h3>
+                  <div className="text-6xl font-black">{userState.bestExam}%</div>
+                </div>
+                <div className="mt-8 relative z-10 border-t border-white/10 pt-6">
+                  <p className="text-[10px] font-black uppercase opacity-40 mb-3 tracking-widest">Recent Logs</p>
+                  <div className="space-y-2">
+                    {userState.examHistory.length > 0 ? userState.examHistory.slice(0, 3).map((h, i) => (
+                      <div key={i} className="flex justify-between text-xs font-bold bg-white/5 p-2 rounded-lg">
+                        <span>{h.date}</span>
+                        <span>{h.score}%</span>
+                      </div>
+                    )) : <p className="text-xs opacity-20">No simulations recorded.</p>}
+                  </div>
+                </div>
+                <Trophy size={140} className="absolute -bottom-10 -right-10 opacity-5" />
+              </div>
             </div>
-        </div>
-    </header>
 
-    <!-- Main Content Area -->
-    <main id="app-container" class="flex-grow max-w-5xl mx-auto w-full p-4 md:p-8">
-        <!-- Views will be injected here via JavaScript -->
-    </main>
-
-    <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 py-8 mt-8">
-        <div class="max-w-5xl mx-auto px-4 text-center text-slate-400 text-sm">
-            <p>SIE Exam Prep • 28-Day Accelerated Course</p>
-            <p class="mt-2 text-xs">Progress stored locally on your device.</p>
-        </div>
-    </footer>
-
-    <!-- JAVASCRIPT LOGIC -->
-    <script>
-        /**
-         * DATA LAYER
-         * Contains the full curriculum, weights, and questions.
-         */
-        const DATA = {
-            parts: [
-                { id: 1, title: "Knowledge of Capital Markets", weight: 0.16, days: [1, 2, 3, 4, 5] },
-                { id: 2, title: "Products and Their Risks", weight: 0.44, days: [6, 7, 8, 9, 10, 11, 12, 13] },
-                { id: 3, title: "Trading, Customer Accounts & Prohibited Activities", weight: 0.31, days: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23] },
-                { id: 4, title: "Regulatory Framework", weight: 0.09, days: [24, 25, 26, 27, 28] }
-            ],
-            curriculum: [
-                // --- PART 1 ---
-                {
-                    day: 1,
-                    title: "Regulatory Entities & Market Participants",
-                    summary: "Overview of the SEC, SROs (FINRA, MSRB, CBOE), and the hierarchy of regulation.",
-                    content: `
-                        <h3 class="text-xl font-bold mb-4">The Securities and Exchange Commission (SEC)</h3>
-                        <p class="mb-4">The SEC is the primary federal regulator of the securities industry. Its mission is to protect investors, maintain fair, orderly, and efficient markets, and facilitate capital formation.</p>
-                        
-                        <h3 class="text-xl font-bold mb-4">Self-Regulatory Organizations (SROs)</h3>
-                        <p class="mb-4">SROs function under the oversight of the SEC. The most prominent is <strong>FINRA</strong> (Financial Industry Regulatory Authority).</p>
-                        <ul class="list-disc pl-6 mb-4 space-y-2">
-                            <li><strong>FINRA:</strong> Regulates all matters related to investment banking, trading, and the conduct of member firms.</li>
-                            <li><strong>MSRB:</strong> Regulates the municipal securities market. *Note: The MSRB writes rules but does not have enforcement power. FINRA enforces MSRB rules.*</li>
-                            <li><strong>CBOE:</strong> Regulates the options market.</li>
-                        </ul>
-                    `,
-                    quiz: [
-                        { q: "Which organization acts as the primary federal regulator of the securities industry?", options: ["FINRA", "SEC", "MSRB", "The Fed"], a: 1 },
-                        { q: "Which SRO writes rules for municipal securities but does not enforce them?", options: ["SEC", "FINRA", "MSRB", "FDIC"], a: 2 }
-                    ]
-                },
-                {
-                    day: 2,
-                    title: "Market Structure: Primary vs. Secondary",
-                    summary: "Understanding the difference between the new issue market and the trading market.",
-                    content: `
-                        <h3 class="text-xl font-bold mb-4">Primary Market</h3>
-                        <p class="mb-4">Where securities are created. The issuer receives the proceeds from the sale. Think IPOs (Initial Public Offerings) and APOs (Additional Public Offerings).</p>
-                        
-                        <h3 class="text-xl font-bold mb-4">Secondary Market</h3>
-                        <p class="mb-4">Where investors trade previously issued securities. The issuer is not involved in these transactions.</p>
-                        <div class="bg-blue-50 p-4 rounded-lg border border-blue-200 my-4">
-                            <strong>Key Concept:</strong> If you buy Apple stock on the Nasdaq, you are in the secondary market. If you buy Apple stock directly from Apple during an issuance, you are in the primary market.
+            {/* Modules Roadmap */}
+            <div className="space-y-6">
+              <h3 className="text-2xl font-black flex items-center gap-2"><BookOpen className="text-blue-600" /> Training Roadmap</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {Object.entries(CURRICULUM).map(([day, module]) => (
+                  <div 
+                    key={day}
+                    onClick={() => { setStudyDay(parseInt(day)); setView('study'); }}
+                    className={`group p-6 rounded-2xl border transition-all cursor-pointer ${userState.completedDays.includes(parseInt(day)) ? 'bg-emerald-500/5 border-emerald-500/20' : 'bg-white dark:bg-gray-900 border-gray-100 dark:border-gray-800 hover:border-blue-500 shadow-sm'}`}
+                  >
+                    <div className="flex items-center gap-5">
+                      <div className={`w-12 h-12 rounded-xl flex items-center justify-center font-black transition-colors ${userState.completedDays.includes(parseInt(day)) ? 'bg-emerald-500 text-white' : 'bg-gray-100 dark:bg-gray-800 text-gray-400 group-hover:bg-blue-600 group-hover:text-white'}`}>
+                        {userState.completedDays.includes(parseInt(day)) ? <CheckCircle2 /> : day}
+                      </div>
+                      <div className="flex-1 overflow-hidden">
+                        <h4 className="font-bold text-sm leading-tight mb-1 truncate">{module.title}</h4>
+                        <div className={`text-[9px] font-black uppercase px-2 py-0.5 rounded inline-block ${DOMAINS[module.d].bg} text-white`}>
+                          {DOMAINS[module.d].n.split(' ')[0]}
                         </div>
-                    `,
-                    quiz: [
-                        { q: "In which market does the issuer receive the proceeds from the sale?", options: ["Secondary Market", "Third Market", "Primary Market", "Auction Market"], a: 2 },
-                        { q: "What is an IPO?", options: ["Initial Private Offering", "Initial Public Offering", "Institutional Public Order", "Internal Primary Option"], a: 1 }
-                    ]
-                },
-                {
-                    day: 3,
-                    title: "Economic Factors",
-                    summary: "GDP, Inflation, Deflation, and the Business Cycle.",
-                    content: `
-                        <h3 class="text-xl font-bold mb-4">The Business Cycle</h3>
-                        <p class="mb-4">The economy moves through four stages:</p>
-                        <ol class="list-decimal pl-6 mb-4 space-y-1">
-                            <li><strong>Expansion:</strong> GDP rises, employment rises.</li>
-                            <li><strong>Peak:</strong> The top of the cycle.</li>
-                            <li><strong>Contraction:</strong> GDP falls, unemployment rises. (2 quarters = Recession).</li>
-                            <li><strong>Trough:</strong> The bottom of the cycle.</li>
-                        </ol>
-                        
-                        <h3 class="text-xl font-bold mb-4">The Federal Reserve</h3>
-                        <p class="mb-4">The Fed manages monetary policy using three tools:</p>
-                        <ul class="list-disc pl-6 mb-4">
-                            <li><strong>Open Market Operations:</strong> Buying/Selling treasuries (most common).</li>
-                            <li><strong>Discount Rate:</strong> Rate Fed charges member banks.</li>
-                            <li><strong>Reserve Requirement:</strong> Amount banks must keep on hand.</li>
-                        </ul>
-                    `,
-                    quiz: [
-                        { q: "A recession is defined as a decline in GDP for how many consecutive quarters?", options: ["1", "2", "3", "4"], a: 1 },
-                        { q: "If the Fed wants to stimulate the economy (loosen money), what action might it take?", options: ["Raise the discount rate", "Sell securities", "Buy securities", "Increase reserve requirements"], a: 2 }
-                    ]
-                },
-                { day: 4, title: "Equity Securities", summary: "Common Stock vs Preferred Stock, ADRs.", content: "Details regarding ownership, voting rights, and dividends...", quiz: [{q: "Which type of stock typically has voting rights?", options: ["Common", "Preferred", "Treasury", "Callable"], a: 0}] },
-                { day: 5, title: "Debt Instruments", summary: "Bonds, Yields, and Credit Ratings.", content: "Understanding Par value, Coupon Rate, and the inverse relationship between price and yield.", quiz: [{q: "If interest rates rise, what happens to bond prices?", options: ["Rise", "Fall", "Stay same", "Fluctuate randomly"], a: 1}] },
-                
-                // --- PART 2 ---
-                { day: 6, title: "Packaged Products: Mutual Funds", summary: "NAV, POP, Load vs No-Load Funds.", content: "Open-ended vs Closed-ended funds breakdown.", quiz: [{q: "Mutual fund shares are priced based on:", options: ["Supply and Demand", "NAV per share", "Expert opinion", "Futures markets"], a: 1}] },
-                { 
-                    day: 7, 
-                    title: "CUMULATIVE REVIEW I", 
-                    isCumulative: true, 
-                    summary: "Assessment of Capital Markets & Basic Products.",
-                    content: "This is a checkpoint. You must pass this review to ensure mastery of the first week's material.",
-                    quiz: [
-                        { q: "Who enforces MSRB rules for broker-dealers?", options: ["MSRB", "SEC", "FINRA", "FDIC"], a: 2 },
-                        { q: "Which tool does the Fed use most frequently?", options: ["Discount Rate", "Reserve Requirement", "Open Market Operations", "Margin Rates"], a: 2 },
-                        { q: "Common stockholders have which right?", options: ["Vote for directors", "Guaranteed dividends", "Seniority in liquidation", "Tax-free income"], a: 0 },
-                        { q: "As market interest rates fall, bond prices:", options: ["Fall", "Rise", "Stabilize", "Default"], a: 1 }
-                    ]
-                },
-                { 
-                    day: 8, 
-                    title: "Options: The Basics", 
-                    summary: "Calls, Puts, Buying vs Selling. Intro to the Options Matrix.", 
-                    hasWidget: "options-matrix",
-                    content: `
-                        <h3 class="text-xl font-bold mb-4">The Four Positions</h3>
-                        <div class="grid grid-cols-2 gap-4 mb-6">
-                            <div class="p-4 border rounded bg-green-50">
-                                <h4 class="font-bold text-green-800">Long Call (Buy)</h4>
-                                <p class="text-sm">Bullish. Right to buy.</p>
-                            </div>
-                            <div class="p-4 border rounded bg-red-50">
-                                <h4 class="font-bold text-red-800">Short Call (Sell)</h4>
-                                <p class="text-sm">Bearish. Obligation to sell.</p>
-                            </div>
-                            <div class="p-4 border rounded bg-green-50">
-                                <h4 class="font-bold text-green-800">Long Put (Buy)</h4>
-                                <p class="text-sm">Bearish. Right to sell.</p>
-                            </div>
-                            <div class="p-4 border rounded bg-red-50">
-                                <h4 class="font-bold text-red-800">Short Put (Sell)</h4>
-                                <p class="text-sm">Bullish. Obligation to buy.</p>
-                            </div>
-                        </div>
-                        <p class="mb-4">Use the calculator below to understand Break-Even (BE) points.</p>
-                    `,
-                    quiz: [{q: "The buyer of a call has the:", options: ["Right to sell", "Right to buy", "Obligation to sell", "Obligation to buy"], a: 1}] 
-                },
-                { day: 9, title: "Options Strategies", summary: "Hedging and Income generation (Covered Calls).", content: "Advanced strategies for protection.", quiz: [{q: "What is the best hedge for a long stock position?", options: ["Buy a Call", "Sell a Call", "Buy a Put", "Sell a Put"], a: 2}] },
-                { day: 10, title: "Retirement & Education", summary: "IRAs, 401(k), Roth vs Traditional, 529 Plans.", content: "Tax implications and contribution limits.", quiz: [{q: "Distributions from a Roth IRA are:", options: ["Tax-deductible", "Tax-free if qualified", "Taxed as ordinary income", "Taxed as capital gains"], a: 1}] },
-                { day: 11, title: "DPPs and REITs", summary: "Real Estate Investment Trusts and Limited Partnerships.", content: "Pass-through income and liquidity risks.", quiz: [{q: "REITs must pass through what % of income to avoid corporate tax?", options: ["50%", "75%", "90%", "100%"], a: 2}] },
-                { day: 12, title: "Investment Risks", summary: "Systematic vs Non-Systematic Risk.", content: "Diversification, Beta, and Capital Risk.", quiz: [{q: "Which risk cannot be diversified away?", options: ["Business Risk", "Systematic Risk", "Legislative Risk", "Liquidity Risk"], a: 1}] },
-                { day: 13, title: "Customer Accounts I", summary: "Cash Accounts vs Margin Accounts.", content: "Regulation T and hypothecation.", quiz: [{q: "Reg T requires payment within how many days?", options: ["T+1", "T+2", "T+4", "Same Day"], a: 2}] },
-                { 
-                    day: 14, 
-                    title: "CUMULATIVE REVIEW II", 
-                    isCumulative: true, 
-                    summary: "Products & Risks Checkpoint.",
-                    content: "Reviewing Options, Funds, and Economic Risks.",
-                    quiz: [
-                        { q: "A covered call writer owns the underlying stock.", options: ["True", "False"], a: 0 },
-                        { q: "Which product is most exposed to interest rate risk?", options: ["Common Stock", "Long-term Bond", "T-Bill", "Money Market Fund"], a: 1 },
-                        { q: "What is the penalty for early withdrawal from an IRA (before 59.5)?", options: ["5%", "10%", "15%", "20%"], a: 1 }
-                    ]
-                },
-
-                // --- PART 3 ---
-                { day: 15, title: "Trading Markets", summary: "Exchanges vs OTC.", content: "Auction markets vs Negotiated markets.", quiz: [{q: "The Nasdaq is what type of market?", options: ["Auction", "Negotiated", "Hybrid", "Physical"], a: 1}] },
-                { day: 16, title: "Order Types", summary: "Market, Limit, Stop, Stop-Limit.", content: "Execution priority and triggers.", quiz: [{q: "Which order guarantees a price but not execution?", options: ["Market Order", "Limit Order", "Stop Order", "Day Order"], a: 1}] },
-                { day: 17, title: "Corporate Actions", summary: "Splits, Buybacks, Dividends, Proxies.", content: "Impact on share price and ownership.", quiz: [{q: "In a 2-for-1 stock split, the price per share:", options: ["Doubles", "Halves", "Triples", "Stays same"], a: 1}] },
-                { day: 18, title: "AML & KYC", summary: "Anti-Money Laundering, SARs, CTRs.", content: "The Patriot Act and knowing your customer.", quiz: [{q: "A CTR must be filed for cash transactions exceeding:", options: ["$3,000", "$5,000", "$10,000", "$50,000"], a: 2}] },
-                { day: 19, title: "Privacy & Comms", summary: "Reg S-P, Retail vs Institutional Communication.", content: "Opt-out notices and correspondence rules.", quiz: [{q: "Retail communication is sent to more than how many retail investors?", options: ["10", "15", "25", "50"], a: 2}] },
-                { day: 20, title: "Market Manipulation", summary: "Insider Trading, Pump and Dump, Front Running.", content: "Prohibited practices defined.", quiz: [{q: "Trading ahead of a large customer order is called:", options: ["Backing Away", "Front Running", "Churning", "Interpositioning"], a: 1}] },
-                { 
-                    day: 21, 
-                    title: "CUMULATIVE REVIEW III", 
-                    isCumulative: true, 
-                    summary: "Trading & Regulations Checkpoint.",
-                    content: "Mastery of trading mechanics and prohibited acts.",
-                    quiz: [
-                        { q: "When does a limit order to buy execute?", options: ["At limit or higher", "At limit or lower", "At next market price", "Immediately"], a: 1 },
-                        { q: "Structuring deposits to avoid CTRs is called:", options: ["Layering", "Structuring", "Placement", "Integration"], a: 1 },
-                        { q: "Insider trading penalties can be up to how many times the profit made?", options: ["1x", "2x", "3x", "4x"], a: 2 }
-                    ]
-                },
-                { day: 22, title: "Registration & U4", summary: "Form U4, U5, Statutory Disqualification.", content: "Hiring, firing, and background checks.", quiz: [{q: "How many years of employment history are required on Form U4?", options: ["3", "5", "7", "10"], a: 3}] },
-                { day: 23, title: "Reportable Events", summary: "Customer Complaints and Outside Business Activities.", content: "What must be reported to FINRA.", quiz: [{q: "A written customer complaint must be kept on file for:", options: ["2 years", "3 years", "4 years", "6 years"], a: 2}] },
-
-                // --- PART 4 ---
-                { day: 24, title: "SRO Rules", summary: "Uniform Practice Code, Conduct Rules.", content: "Ethics and standardization.", quiz: [{q: "Gifts to employees of other firms are limited to:", options: ["$50/year", "$100/year", "$250/year", "$500/year"], a: 1}] },
-                { day: 25, title: "Dispute Resolution", summary: "Code of Procedure vs Code of Arbitration.", content: "Handling rule violations vs monetary disputes.", quiz: [{q: "Decisions in arbitration are:", options: ["Appealable to SEC", "Binding and Final", "Appealable to Federal Court", "Non-binding"], a: 1}] },
-                { day: 26, title: "Continuing Education", summary: "Regulatory Element vs Firm Element.", content: "Timelines for maintaining license.", quiz: [{q: "Regulatory Element CE is required how often?", options: ["Annually", "Every 2 years", "Every 3 years", "Only once"], a: 0}] },
-                { day: 27, title: "FINAL REVIEW DAY", summary: "Cram session.", content: "Reviewing all key formulas and dates.", quiz: [{q: "What is the settlement for T-Bills?", options: ["T+1", "T+2", "Same Day", "T+3"], a: 0}] },
-                { 
-                    day: 28, 
-                    title: "FULL MOCK EXAM", 
-                    isCumulative: true,
-                    isFinal: true,
-                    summary: "75 Questions Simulation.", 
-                    content: "This is the final hurdle. Good luck.", 
-                    quiz: [
-                        { q: "Which of the following is NOT an SRO?", options: ["SEC", "FINRA", "MSRB", "CBOE"], a: 0 },
-                        { q: "A bond trading at a discount has a YTM that is:", options: ["Higher than coupon", "Lower than coupon", "Same as coupon", "Zero"], a: 0 },
-                        { q: "Break-point sales are a violation regarding:", options: ["Stocks", "Mutual Funds", "Bonds", "Options"], a: 1 },
-                        { q: "Regular way settlement for corporate stock is:", options: ["T+1", "T+2", "T+3", "T+4"], a: 0 },
-                        { q: "Who insures SIPC accounts?", options: ["FDIC", "The Fed", "SIPC member firms", "US Treasury"], a: 2 }
-                    ]
-                }
-            ]
-        };
-
-        /**
-         * STATE MANAGEMENT
-         * Handles localStorage interaction.
-         */
-        const State = {
-            key: 'sie_prep_state_v1',
-            data: {
-                completedDays: [],
-                quizScores: {}, // { dayId: score }
-                lastAccessedDay: 1
-            },
-
-            init() {
-                const stored = localStorage.getItem(this.key);
-                if (stored) {
-                    this.data = JSON.parse(stored);
-                }
-            },
-
-            save() {
-                localStorage.setItem(this.key, JSON.stringify(this.data));
-                App.updateHeaderProgress();
-            },
-
-            completeDay(day, score) {
-                if (!this.data.completedDays.includes(day)) {
-                    this.data.completedDays.push(day);
-                }
-                this.data.quizScores[day] = score;
-                this.data.lastAccessedDay = day;
-                this.save();
-            },
-
-            reset() {
-                if(confirm("Are you sure you want to reset all progress?")) {
-                    localStorage.removeItem(this.key);
-                    location.reload();
-                }
-            },
-
-            getReadiness() {
-                // Calculate weighted readiness
-                let totalReadiness = 0;
-                
-                DATA.parts.forEach(part => {
-                    const partDays = part.days.length;
-                    const daysCompletedInPart = part.days.filter(d => this.data.completedDays.includes(d)).length;
-                    
-                    // The weight of the part is distributed across its days
-                    const weightPerDay = part.weight / partDays;
-                    totalReadiness += (daysCompletedInPart * weightPerDay);
-                });
-
-                return Math.min(Math.round(totalReadiness * 100), 100);
-            }
-        };
-
-        /**
-         * UI CONTROLLER
-         * Renders HTML based on state.
-         */
-        const App = {
-            init() {
-                State.init();
-                this.updateHeaderProgress();
-                this.renderDashboard();
-            },
-
-            updateHeaderProgress() {
-                const percent = State.getReadiness();
-                document.getElementById('header-progress-bar').style.width = `${percent}%`;
-                document.getElementById('header-progress-text').innerText = `${percent}%`;
-            },
-
-            resetProgress() {
-                State.reset();
-            },
-
-            // --- VIEW: DASHBOARD ---
-            renderDashboard() {
-                const container = document.getElementById('app-container');
-                const lastDay = State.data.lastAccessedDay || 1;
-                
-                let html = `
-                    <div class="mb-8">
-                        <h2 class="text-3xl font-bold text-slate-900 mb-2">Study Roadmap</h2>
-                        <p class="text-slate-500">28 Days to Exam Mastery. Follow the path below.</p>
+                      </div>
                     </div>
-                `;
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
-                DATA.parts.forEach(part => {
-                    html += `
-                        <div class="mb-8">
-                            <h3 class="text-sm font-bold text-slate-400 uppercase tracking-wider mb-4 border-b border-slate-200 pb-2">
-                                ${part.title} <span class="float-right text-indigo-600 font-normal">${(part.weight * 100)}% of Exam</span>
-                            </h3>
-                            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    `;
-                    
-                    part.days.forEach(dayNum => {
-                        const dayData = DATA.curriculum.find(d => d.day === dayNum);
-                        const isCompleted = State.data.completedDays.includes(dayNum);
-                        const score = State.data.quizScores[dayNum];
-                        const isNext = !isCompleted && (dayNum === 1 || State.data.completedDays.includes(dayNum - 1));
-                        const isLocked = !isCompleted && !isNext;
+        {/* STUDY MODULE */}
+        {view === 'study' && (
+          <div className="max-w-3xl mx-auto space-y-10 animate-in slide-in-from-right duration-500">
+            <button onClick={() => setView('dashboard')} className="flex items-center gap-2 text-sm font-black text-gray-500 hover:text-blue-600"><ChevronLeft /> Back to Dashboard</button>
+            <div className="bg-white dark:bg-gray-900 p-8 sm:p-14 rounded-[3rem] border border-gray-100 dark:border-gray-800 shadow-sm">
+              <header className="mb-10">
+                <div className="flex gap-3 mb-4">
+                  <span className={`text-[10px] font-black px-2 py-1 rounded text-white ${DOMAINS[CURRICULUM[studyDay].d].bg}`}>DOMAIN {CURRICULUM[studyDay].d}</span>
+                  <span className="text-gray-400 text-xs font-bold uppercase tracking-widest">{CURRICULUM[studyDay].focus}</span>
+                </div>
+                <h1 className="text-5xl font-black leading-tight tracking-tighter">{CURRICULUM[studyDay].title}</h1>
+              </header>
+              <div className="prose dark:prose-invert max-w-none text-2xl leading-relaxed text-gray-700 dark:text-gray-300 font-medium">
+                <p className="mb-10 border-l-4 border-blue-600 pl-8">{CURRICULUM[studyDay].content}</p>
+                <div className="bg-blue-50 dark:bg-blue-900/10 p-10 rounded-3xl border border-blue-100 dark:border-blue-900/30">
+                  <h4 className="text-xs font-black text-blue-600 uppercase tracking-widest mb-6">Training Checkpoint</h4>
+                  <button onClick={() => markComplete(studyDay)} className="w-full bg-blue-600 text-white py-5 rounded-2xl font-black text-xl flex items-center justify-center gap-3 shadow-xl shadow-blue-500/20">
+                    MARK AS COMPLETED & NEXT <ChevronRight />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
-                        let cardClass = isLocked ? 'opacity-50 grayscale pointer-events-none' : 'hover:shadow-lg cursor-pointer transform transition';
-                        let borderClass = isCompleted ? 'border-green-400 bg-green-50' : (isNext ? 'border-indigo-500 ring-2 ring-indigo-100 bg-white' : 'border-slate-200 bg-white');
-                        let icon = isCompleted ? '<i class="ph-fill ph-check-circle text-green-500 text-xl"></i>' : (isLocked ? '<i class="ph ph-lock text-slate-400 text-xl"></i>' : '<i class="ph-fill ph-play-circle text-indigo-500 text-xl"></i>');
+        {/* LABS */}
+        {view === 'labs' && (
+          <div className="max-w-4xl mx-auto space-y-12 animate-in fade-in duration-500">
+            <h1 className="text-5xl font-black text-center tracking-tighter">Logic Labs</h1>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="bg-white dark:bg-gray-900 p-10 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl">
+                <h3 className="text-2xl font-black mb-10 flex items-center gap-3"><Calculator className="text-purple-600" /> Yield Seesaw</h3>
+                <div className="relative py-20 flex flex-col items-center">
+                  <div className="w-full h-1 bg-gray-200 dark:bg-gray-800 relative transition-transform duration-700" style={{ transform: `rotate(${(labState.bondRate - 5) * 6}deg)` }}>
+                    <div className="absolute -top-12 left-0 -translate-x-1/2 text-center">
+                      <span className="text-[10px] font-black text-gray-400">PRICE</span>
+                      <div className="text-xl font-black text-blue-600">{labState.bondRate > 5 ? 'DISCOUNT' : 'PREMIUM'}</div>
+                    </div>
+                    <div className="absolute -top-12 right-0 translate-x-1/2 text-center">
+                      <span className="text-[10px] font-black text-gray-400">YIELD</span>
+                      <div className="text-xl font-black text-purple-600">{labState.bondRate.toFixed(1)}%</div>
+                    </div>
+                    <div className="absolute top-0 left-1/2 -translate-x-1/2 w-4 h-10 bg-gray-300 dark:bg-gray-700" />
+                  </div>
+                  <input type="range" min="2" max="8" step="0.1" value={labState.bondRate} onChange={(e) => setLabState({...labState, bondRate: parseFloat(e.target.value)})} className="w-full mt-24 accent-purple-600" />
+                </div>
+              </div>
+              <div className="bg-white dark:bg-gray-900 p-10 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-xl">
+                <h3 className="text-2xl font-black mb-8">Options BE</h3>
+                <div className="bg-gray-50 dark:bg-gray-800 p-8 rounded-2xl text-center mb-8">
+                  <div className="text-6xl font-black text-blue-600">${labState.optionType.includes('call') ? labState.strike + labState.premium : labState.strike - labState.premium}</div>
+                  <span className="text-xs font-black uppercase text-gray-400 mt-4 block">Break-Even Point</span>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase">Strike</label>
+                    <input type="number" value={labState.strike} onChange={(e) => setLabState({...labState, strike: parseInt(e.target.value)})} className="w-full p-4 rounded-xl bg-gray-100 dark:bg-gray-700 font-black border-0" />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-[10px] font-black text-gray-400 uppercase">Premium</label>
+                    <input type="number" value={labState.premium} onChange={(e) => setLabState({...labState, premium: parseInt(e.target.value)})} className="w-full p-4 rounded-xl bg-gray-100 dark:bg-gray-700 font-black border-0" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
-                        html += `
-                            <div onclick="App.renderDay(${dayNum})" class="relative p-5 rounded-xl border ${borderClass} ${cardClass} shadow-sm flex flex-col justify-between h-40">
-                                <div>
-                                    <div class="flex justify-between items-start mb-2">
-                                        <span class="text-xs font-bold px-2 py-1 rounded bg-slate-100 text-slate-600">Day ${dayNum}</span>
-                                        ${icon}
-                                    </div>
-                                    <h4 class="font-bold text-slate-800 leading-tight">${dayData.title}</h4>
-                                </div>
-                                <div class="text-xs text-slate-500 mt-2">
-                                    ${score !== undefined ? `<span class="font-bold ${score >= 70 ? 'text-green-600' : 'text-red-500'}">Score: ${score}%</span>` : (isNext ? 'Start Reading' : (isLocked ? 'Locked' : 'Review'))}
-                                </div>
-                            </div>
-                        `;
-                    });
+        {/* FLASHCARDS */}
+        {view === 'flashcards' && (
+          <div className="max-w-2xl mx-auto py-12 space-y-10 animate-in zoom-in duration-500">
+            <h1 className="text-5xl font-black text-center tracking-tighter">Combat Cards</h1>
+            <div className="h-80 w-full perspective-1000 cursor-pointer" onClick={() => setLabState({...labState, cardFlipped: !labState.cardFlipped})}>
+              <div className={`relative w-full h-full transition-transform duration-500 transform-style-3d ${labState.cardFlipped ? 'rotate-y-180' : ''}`}>
+                <div className="absolute inset-0 bg-white dark:bg-gray-900 border border-blue-500/20 rounded-[2.5rem] flex flex-col items-center justify-center p-12 backface-hidden shadow-2xl">
+                  <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest mb-4">TERM</span>
+                  <h2 className="text-4xl font-black text-center leading-tight">{FLASHCARDS[userState.cardIndex].t}</h2>
+                </div>
+                <div className="absolute inset-0 bg-blue-600 text-white rounded-[2.5rem] flex flex-col items-center justify-center p-12 backface-hidden rotate-y-180 shadow-2xl">
+                  <span className="text-[10px] font-black opacity-60 uppercase tracking-widest mb-4">DEFINITION</span>
+                  <p className="text-2xl font-bold text-center leading-relaxed">{FLASHCARDS[userState.cardIndex].d}</p>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-between items-center bg-white dark:bg-gray-900 p-4 rounded-3xl border border-gray-100 dark:border-gray-800">
+              <button onClick={() => { setLabState({...labState, cardFlipped: false}); setUserState({...userState, cardIndex: (userState.cardIndex - 1 + FLASHCARDS.length) % FLASHCARDS.length})}} className="p-4 rounded-2xl hover:bg-gray-100 dark:hover:bg-gray-800"><ChevronLeft /></button>
+              <span className="font-black text-xs text-gray-400">{userState.cardIndex + 1} / {FLASHCARDS.length}</span>
+              <button onClick={() => { setLabState({...labState, cardFlipped: false}); setUserState({...userState, cardIndex: (userState.cardIndex + 1) % FLASHCARDS.length})}} className="p-4 px-10 bg-blue-600 text-white rounded-2xl font-black">NEXT</button>
+            </div>
+          </div>
+        )}
 
-                    html += `</div></div>`;
-                });
+        {/* EXAM SIMULATOR */}
+        {view === 'exam' && exam && (
+          <div className="max-w-3xl mx-auto py-6 space-y-8 animate-in fade-in duration-500">
+            <header className="flex justify-between items-center bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg p-6 rounded-3xl border border-gray-100 dark:border-gray-800 sticky top-24 z-40">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center text-white shadow-lg"><Clock size={24} /></div>
+                <div>
+                  <div className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Time Remaining</div>
+                  <div className="text-2xl font-black tabular-nums tracking-tighter">105:00</div>
+                </div>
+              </div>
+              {!exam.finished && (
+                <button onClick={submitExam} className="bg-gray-950 dark:bg-white text-white dark:text-gray-950 px-8 py-4 rounded-2xl font-black text-sm transition-all hover:scale-105">SUBMIT EXAM</button>
+              )}
+            </header>
 
-                container.innerHTML = html;
-            },
-
-            // --- VIEW: DAY CONTENT ---
-            renderDay(dayNum) {
-                const dayData = DATA.curriculum.find(d => d.day === dayNum);
-                const container = document.getElementById('app-container');
-                
-                // Content HTML
-                let contentHtml = dayData.content;
-                
-                // Inject Widgets if specific day requires it
-                if (dayData.hasWidget === 'options-matrix') {
-                    contentHtml += this.getOptionsWidget();
-                }
-
-                container.innerHTML = `
-                    <div class="max-w-3xl mx-auto">
-                        <!-- Breadcrumb -->
-                        <button onclick="App.renderDashboard()" class="mb-6 flex items-center text-sm text-slate-500 hover:text-indigo-600 transition">
-                            <i class="ph ph-arrow-left mr-1"></i> Back to Roadmap
+            {!exam.finished ? (
+              <div className="space-y-8">
+                {exam.questions.map((q, i) => (
+                  <div key={q.id} className="bg-white dark:bg-gray-900 p-10 rounded-[2.5rem] border border-gray-100 dark:border-gray-800 shadow-sm">
+                    <div className="flex justify-between mb-6">
+                      <span className="text-[10px] font-black text-blue-600 uppercase">Question {i + 1}</span>
+                      <span className="text-[10px] font-black text-gray-400 uppercase">Domain {q.d}</span>
+                    </div>
+                    <p className="text-2xl font-bold leading-snug mb-10">{q.q}</p>
+                    <div className="grid gap-3">
+                      {q.a.map((opt, aIdx) => (
+                        <button key={aIdx} onClick={() => handleExamAnswer(i, aIdx)} className={`text-left p-6 rounded-2xl border-2 font-bold transition-all ${exam.answers[i] === aIdx ? 'border-blue-600 bg-blue-50 dark:bg-blue-900/20' : 'border-gray-50 dark:border-gray-800 hover:border-blue-200'}`}>
+                          {opt}
                         </button>
-
-                        <!-- Content Card -->
-                        <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden mb-8">
-                            <div class="bg-slate-50 border-b border-slate-100 p-8">
-                                <span class="text-indigo-600 font-bold tracking-wide text-xs uppercase mb-2 block">Day ${dayData.day} Module</span>
-                                <h1 class="text-3xl font-bold text-slate-900">${dayData.title}</h1>
-                                <p class="text-slate-500 mt-2 text-lg">${dayData.summary}</p>
-                            </div>
-                            <div class="p-8 prose prose-slate max-w-none text-slate-700 leading-relaxed">
-                                ${contentHtml}
-                            </div>
-                        </div>
-
-                        <!-- Action Bar -->
-                        <div class="flex justify-center">
-                            <button onclick="App.renderQuiz(${dayNum})" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-12 rounded-full shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 flex items-center gap-2">
-                                Take Assessment <i class="ph-bold ph-arrow-right"></i>
-                            </button>
-                        </div>
+                      ))}
                     </div>
-                `;
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="bg-white dark:bg-gray-900 p-16 rounded-[3rem] text-center space-y-10 animate-in zoom-in">
+                <div className="flex justify-center">
+                  <div className="p-8 bg-emerald-500/10 rounded-full text-emerald-500"><Trophy size={80} /></div>
+                </div>
+                <div>
+                  <h2 className="text-7xl font-black tracking-tighter">{Math.round((Object.values(exam.answers).filter((v, i) => v === exam.questions[i].c).length / exam.questions.length) * 100)}%</h2>
+                  <p className="text-xl font-bold text-gray-500 mt-2 tracking-tight">Simulator Attempt Complete</p>
+                </div>
+                <button onClick={() => setView('dashboard')} className="w-full bg-blue-600 text-white py-6 rounded-3xl font-black text-2xl shadow-xl shadow-blue-500/30">RETURN TO DASHBOARD</button>
+              </div>
+            )}
+          </div>
+        )}
 
-                // If widget exists, initialize its logic
-                if (dayData.hasWidget === 'options-matrix') {
-                    setTimeout(() => this.initOptionsWidget(), 100);
-                }
-            },
+      </main>
 
-            // --- WIDGET: OPTIONS CALCULATOR ---
-            getOptionsWidget() {
-                return `
-                    <div class="my-8 p-6 bg-slate-900 text-white rounded-xl shadow-inner">
-                        <h4 class="text-lg font-bold mb-4 flex items-center gap-2"><i class="ph ph-calculator"></i> Options Break-Even Calculator</h4>
-                        <div class="grid grid-cols-2 gap-4 mb-4">
-                            <div>
-                                <label class="text-xs text-slate-400 block mb-1">Strike Price</label>
-                                <input type="number" id="opt-strike" value="50" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-indigo-500">
-                            </div>
-                            <div>
-                                <label class="text-xs text-slate-400 block mb-1">Premium</label>
-                                <input type="number" id="opt-premium" value="3" class="w-full bg-slate-800 border border-slate-700 rounded p-2 text-white focus:outline-none focus:border-indigo-500">
-                            </div>
-                        </div>
-                        <div class="grid grid-cols-2 gap-4 text-sm">
-                            <div class="bg-slate-800 p-3 rounded border border-slate-700">
-                                <span class="text-slate-400 block text-xs">Call Break-Even (S + P)</span>
-                                <span id="res-call" class="text-xl font-mono text-green-400 font-bold">53.00</span>
-                            </div>
-                            <div class="bg-slate-800 p-3 rounded border border-slate-700">
-                                <span class="text-slate-400 block text-xs">Put Break-Even (S - P)</span>
-                                <span id="res-put" class="text-xl font-mono text-red-400 font-bold">47.00</span>
-                            </div>
-                        </div>
-                    </div>
-                `;
-            },
-
-            initOptionsWidget() {
-                const sInput = document.getElementById('opt-strike');
-                const pInput = document.getElementById('opt-premium');
-                
-                const calc = () => {
-                    const s = parseFloat(sInput.value) || 0;
-                    const p = parseFloat(pInput.value) || 0;
-                    document.getElementById('res-call').innerText = (s + p).toFixed(2);
-                    document.getElementById('res-put').innerText = (s - p).toFixed(2);
-                };
-
-                sInput.addEventListener('input', calc);
-                pInput.addEventListener('input', calc);
-            },
-
-            // --- VIEW: QUIZ ---
-            renderQuiz(dayNum) {
-                const dayData = DATA.curriculum.find(d => d.day === dayNum);
-                const container = document.getElementById('app-container');
-                const questions = dayData.quiz;
-
-                let html = `
-                    <div class="max-w-2xl mx-auto">
-                        <div class="mb-6 flex items-center justify-between">
-                             <button onclick="App.renderDay(${dayNum})" class="text-sm text-slate-500 hover:text-indigo-600 transition">
-                                <i class="ph ph-arrow-left mr-1"></i> Back to Material
-                            </button>
-                            <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Day ${dayNum} Assessment</span>
-                        </div>
-
-                        <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-8">
-                            <h2 class="text-2xl font-bold mb-6 text-slate-800">Knowledge Check</h2>
-                            <form id="quiz-form">
-                `;
-
-                questions.forEach((q, idx) => {
-                    html += `
-                        <div class="mb-8 question-block" data-idx="${idx}" data-correct="${q.a}">
-                            <p class="font-semibold text-lg text-slate-800 mb-4">${idx + 1}. ${q.q}</p>
-                            <div class="space-y-2">
-                    `;
-                    q.options.forEach((opt, optIdx) => {
-                        html += `
-                            <label class="option-card flex items-center p-3 border border-slate-200 rounded-lg cursor-pointer transition bg-slate-50 hover:bg-white">
-                                <input type="radio" name="q${idx}" value="${optIdx}" class="w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-gray-300">
-                                <span class="ml-3 text-slate-700">${opt}</span>
-                            </label>
-                        `;
-                    });
-                    html += `</div><div class="feedback mt-2 hidden text-sm font-bold"></div></div>`;
-                });
-
-                html += `
-                            <button type="button" onclick="App.submitQuiz(${dayNum})" class="w-full bg-indigo-600 text-white font-bold py-3 rounded-lg hover:bg-indigo-700 transition">Submit Answers</button>
-                            </form>
-                            <div id="quiz-result" class="hidden mt-6 text-center border-t pt-6">
-                                <p class="text-3xl font-bold mb-2" id="score-display">0%</p>
-                                <p class="text-slate-500 mb-4" id="score-msg">Result</p>
-                                <button onclick="App.renderDashboard()" class="bg-slate-800 text-white px-6 py-2 rounded hover:bg-slate-900">Return to Roadmap</button>
-                            </div>
-                        </div>
-                    </div>
-                `;
-
-                container.innerHTML = html;
-            },
-
-            submitQuiz(dayNum) {
-                const dayData = DATA.curriculum.find(d => d.day === dayNum);
-                const questions = dayData.quiz;
-                let correctCount = 0;
-                let total = questions.length;
-
-                // Disable button
-                document.querySelector('button[type="button"]').disabled = true;
-                document.querySelector('button[type="button"]').classList.add('opacity-50');
-
-                questions.forEach((q, idx) => {
-                    const block = document.querySelector(`.question-block[data-idx="${idx}"]`);
-                    const selected = block.querySelector(`input[name="q${idx}"]:checked`);
-                    const feedback = block.querySelector('.feedback');
-                    const options = block.querySelectorAll('.option-card');
-
-                    feedback.classList.remove('hidden');
-
-                    if (selected && parseInt(selected.value) === q.a) {
-                        correctCount++;
-                        feedback.innerText = "Correct!";
-                        feedback.classList.add('text-green-600');
-                        options[q.a].classList.add('correct-answer');
-                    } else {
-                        feedback.innerText = "Incorrect.";
-                        feedback.classList.add('text-red-500');
-                        if(selected) selected.parentElement.classList.add('wrong-answer');
-                        options[q.a].classList.add('correct-answer', 'ring-2', 'ring-green-400');
-                    }
-                });
-
-                const score = Math.round((correctCount / total) * 100);
-                
-                // Show Results
-                const resultDiv = document.getElementById('quiz-result');
-                const scoreDisplay = document.getElementById('score-display');
-                const scoreMsg = document.getElementById('score-msg');
-                
-                resultDiv.classList.remove('hidden');
-                scoreDisplay.innerText = `${score}%`;
-                
-                if (score >= 70) {
-                    scoreDisplay.classList.add('text-green-600');
-                    scoreMsg.innerText = "Great job! You have passed this section.";
-                    State.completeDay(dayNum, score);
-                } else {
-                    scoreDisplay.classList.add('text-red-600');
-                    scoreMsg.innerText = "Below passing threshold (70%). Review the material and try again.";
-                    State.completeDay(dayNum, score); // Still save progress, but score reflects need for review
-                }
-                
-                // Trigger confetti or visual feedback could go here
-            }
-        };
-
-        // Boot the app
-        window.onload = () => App.init();
-
-    </script>
-</body>
-</html>
+      <style dangerouslySetInnerHTML={{ __html: `
+        .perspective-1000 { perspective: 1000px; }
+        .transform-style-3d { transform-style: preserve-3d; }
+        .backface-hidden { backface-visibility: hidden; }
+        .rotate-y-180 { transform: rotateY(180deg); }
+      `}} />
+    </div>
+  );
+}
 
